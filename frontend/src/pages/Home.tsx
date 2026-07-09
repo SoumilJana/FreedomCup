@@ -11,17 +11,12 @@ export function Home() {
     <div className="space-y-16 py-8">
       
       {/* Hero Section */}
-      <section className="text-center space-y-4">
-        <img src="/logo.png" alt="Freedom Cup Logo" className="w-40 h-40 mx-auto object-contain drop-shadow-2xl mb-4" />
-        <h1 className="text-5xl md:text-6xl font-black tracking-tight text-white">
-          The Stage is Set for <br/>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-purple-400">
-            Freedom Cup 2026
-          </span>
-        </h1>
-        <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-          Explore the standings, dive into player stats, and track every result as 8 teams battle for ultimate glory.
-        </p>
+      <section className="w-full rounded-2xl overflow-hidden border border-gray-800 shadow-2xl">
+        <img 
+          src="/herobanner.png" 
+          alt="Freedom Cup 2026" 
+          className="w-full h-auto object-cover max-h-[600px]" 
+        />
       </section>
 
       {loading ? (

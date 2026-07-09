@@ -5,7 +5,7 @@ import { useTournamentData } from '../hooks/useTournamentData';
 import { HeroBanner } from '../components/HeroBanner';
 
 export function Home() {
-  const { teams, standingsA, standingsB, standingsOverall, topScorer, starPlayer, latestMatch, upcomingMatch, loading } = useTournamentData();
+  const { teams, standingsA, standingsB, topScorer, starPlayer, latestMatch, upcomingMatch, loading } = useTournamentData();
 
   return (
     <div className="space-y-16 py-8">
@@ -16,7 +16,7 @@ export function Home() {
       {loading ? (
         <div className="text-center py-20 text-gray-500">Loading Tournament Data...</div>
       ) : (
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 xl:gap-16">
           {/* Left Column: Standings */}
           <div className="xl:col-span-2 space-y-12">
 
@@ -45,16 +45,7 @@ export function Home() {
               </div>
             ) : (
               <>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                      <span className="w-2 h-8 bg-brand-dark rounded-full block"></span>
-                      Overall Standings
-                    </h2>
-                  </div>
-                  <LeagueTable teams={standingsOverall} />
-                </div>
-                
+
                 <div className="space-y-4">
                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <span className="w-2 h-8 bg-brand-purple rounded-full block"></span>

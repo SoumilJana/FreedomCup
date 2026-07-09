@@ -4,6 +4,7 @@ import { Admin } from './pages/Admin';
 import { TeamProfile } from './pages/TeamProfile';
 import { Teams } from './pages/Teams';
 import { Fixtures } from './pages/Fixtures';
+import { HallOfFame } from './pages/HallOfFame';
 
 function App() {
   return (
@@ -23,7 +24,7 @@ function App() {
                 <NavLink to="/" className={({isActive}) => `text-sm font-medium transition-colors ${isActive ? 'text-white hover:text-brand-purple' : 'text-gray-400 hover:text-white'}`}>Home</NavLink>
                 <NavLink to="/teams" className={({isActive}) => `text-sm font-medium transition-colors ${isActive ? 'text-white hover:text-brand-purple' : 'text-gray-400 hover:text-white'}`}>Teams</NavLink>
                 <NavLink to="/fixtures" className={({isActive}) => `text-sm font-medium transition-colors ${isActive ? 'text-white hover:text-brand-purple' : 'text-gray-400 hover:text-white'}`}>Fixtures</NavLink>
-                <NavLink to="/bracket" className={({isActive}) => `text-sm font-medium transition-colors ${isActive ? 'text-white hover:text-brand-purple' : 'text-gray-400 hover:text-white'}`}>Bracket</NavLink>
+                <NavLink to="/hall-of-fame" className={({isActive}) => `text-sm font-medium transition-colors ${isActive ? 'text-white hover:text-brand-purple' : 'text-gray-400 hover:text-white'}`}>Hall of Fame</NavLink>
               </nav>
             </div>
             <div>
@@ -41,6 +42,7 @@ function App() {
             <Route path="/fixtures" element={<Fixtures />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/team/:id" element={<TeamProfile />} />
+            <Route path="/hall-of-fame" element={<HallOfFame />} />
           </Routes>
         </main>
         

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import imageCompression from 'browser-image-compression';
 import { supabase } from '../lib/supabase';
 import type { Database } from '../types/database.types';
 import { AdminMatches } from '../components/admin/AdminMatches';
@@ -65,13 +66,34 @@ export function Admin() {
   };
 
   const handleFileUpload = async (file: File, path: string) => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random()}.${fileExt}`;
+    let uploadFile = file;
+    let fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    
+    // Attempt compression
+    try {
+      const options = {
+        maxSizeMB: 0.5,
+        maxWidthOrHeight: 1024,
+        useWebWorker: true,
+        fileType: 'image/jpeg'
+      };
+      uploadFile = await imageCompression(file, options);
+      fileExt = 'jpg'; // We force it to be jpeg during compression
+    } catch (error) {
+      console.warn("Image compression failed, using original file:", error);
+    }
+
+    // Include Date.now() to absolutely guarantee cache busting on URL change
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
     const filePath = `${path}/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from('public-assets')
-      .upload(filePath, file);
+      .upload(filePath, uploadFile, {
+        contentType: uploadFile.type,
+        cacheControl: '3600',
+        upsert: false
+      });
 
     if (uploadError) throw uploadError;
 
@@ -236,8 +258,14 @@ export function Admin() {
                   value={team.group_name || ''} 
                   onChange={async (e) => {
                     const newGroup = e.target.value || null;
-                    const { error } = await supabase.from('teams').update({ group_name: newGroup }).eq('id', team.id);
-                    if (!error) {
+                    const { data, error } = await supabase.from('teams').update({ group_name: newGroup }).eq('id', team.id).select();
+                    if (error) {
+                      alert(`Error updating group: ${error.message}`);
+                    } else if (!data || data.length === 0) {
+                      alert(`Error: The group update failed. Please check your Supabase RLS policies for the 'teams' table to ensure you have an UPDATE policy allowed.`);
+                      // Revert local state by triggering a re-render with existing team data
+                      setTeams([...teams]);
+                    } else {
                       setTeams(teams.map(t => t.id === team.id ? { ...t, group_name: newGroup } : t));
                     }
                   }}

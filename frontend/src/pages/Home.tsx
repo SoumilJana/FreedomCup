@@ -13,7 +13,7 @@ export function Home() {
       {/* Hero Section */}
       <section className="w-full rounded-2xl overflow-hidden border border-gray-800 shadow-2xl">
         <img 
-          src="/herobanner.jpg" 
+          src="/herobanner.png" 
           alt="Freedom Cup 2026" 
           className="w-full h-auto object-cover max-h-[600px]" 
         />

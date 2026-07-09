@@ -4,9 +4,9 @@ interface MatchCardProps {
   match: {
     status: 'Scheduled' | 'Completed';
     stage: string;
-    teamA: { name: string; score: number | null; logo: string };
-    teamB: { name: string; score: number | null; logo: string };
-    date: string;
+    teamA: { name: string; score: number | null; logo: string; position?: string };
+    teamB: { name: string; score: number | null; logo: string; position?: string };
+    date?: string;
     penalties?: { teamA: number; teamB: number };
     events?: {
       goals: { player: string; team: 'A' | 'B'; time?: string }[];
@@ -19,9 +19,8 @@ export function MatchCard({ match }: MatchCardProps) {
 
   return (
     <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-gray-700 transition-colors shadow-lg max-w-md w-full">
-      <div className="bg-gray-950/50 px-4 py-2 border-b border-gray-800 flex justify-between items-center text-xs font-semibold text-gray-400 tracking-wider uppercase">
+      <div className="bg-gray-950/50 px-4 py-2 border-b border-gray-800 flex justify-center items-center text-xs font-semibold text-gray-400 tracking-wider uppercase">
         <span>{match.stage}</span>
-        <span>{match.date}</span>
       </div>
       
       <div className="p-6 flex items-center justify-between">
@@ -34,7 +33,12 @@ export function MatchCard({ match }: MatchCardProps) {
               <span className="text-xl font-bold text-gray-500">{match.teamA.name.charAt(0)}</span>
             )}
           </div>
-          <span className="font-bold text-white text-center text-sm">{match.teamA.name}</span>
+          <div className="flex flex-col items-center">
+            <span className="font-bold text-white text-center text-sm">{match.teamA.name}</span>
+            {match.teamA.position && (
+              <span className="text-[10px] text-gray-500 font-medium uppercase mt-0.5">{match.teamA.position}</span>
+            )}
+          </div>
         </div>
 
         {/* Score / vs */}
@@ -68,7 +72,12 @@ export function MatchCard({ match }: MatchCardProps) {
               <span className="text-xl font-bold text-gray-500">{match.teamB.name.charAt(0)}</span>
             )}
           </div>
-          <span className="font-bold text-white text-center text-sm">{match.teamB.name}</span>
+          <div className="flex flex-col items-center">
+            <span className="font-bold text-white text-center text-sm">{match.teamB.name}</span>
+            {match.teamB.position && (
+              <span className="text-[10px] text-gray-500 font-medium uppercase mt-0.5">{match.teamB.position}</span>
+            )}
+          </div>
         </div>
       </div>
 

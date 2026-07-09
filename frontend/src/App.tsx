@@ -3,6 +3,7 @@ import { Home } from './pages/Home';
 import { Admin } from './pages/Admin';
 import { TeamProfile } from './pages/TeamProfile';
 import { Teams } from './pages/Teams';
+import { Fixtures } from './pages/Fixtures';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/teams" element={<Teams />} />
+            <Route path="/fixtures" element={<Fixtures />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/team/:id" element={<TeamProfile />} />
           </Routes>

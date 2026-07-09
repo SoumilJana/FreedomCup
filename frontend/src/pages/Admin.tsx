@@ -26,6 +26,7 @@ export function Admin() {
   const [playerRole, setPlayerRole] = useState('Regular');
   const [playerPhoto, setPlayerPhoto] = useState<File | null>(null);
   const [selectedPlayerId, setSelectedPlayerId] = useState('new');
+  const [confirmDeletePlayer, setConfirmDeletePlayer] = useState(false);
   
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -115,6 +116,31 @@ export function Admin() {
         if (error) throw error;
         setMessage('Player updated successfully!');
       }
+      
+      // Refresh players list
+      const { data: playersData } = await supabase.from('players').select('*').order('name');
+      if (playersData) setPlayers(playersData);
+      
+      handlePlayerSelection('new');
+    } catch (err: any) {
+      setMessage(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeletePlayer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedPlayerId || selectedPlayerId === 'new') return;
+    
+    setLoading(true);
+    setMessage('');
+    try {
+      const { error } = await supabase.from('players').delete().eq('id', selectedPlayerId);
+      if (error) throw error;
+      
+      setMessage('Player deleted successfully!');
+      setConfirmDeletePlayer(false);
       
       // Refresh players list
       const { data: playersData } = await supabase.from('players').select('*').order('name');
@@ -287,9 +313,27 @@ export function Admin() {
               <input type="file" accept="image/*" onChange={e => setPlayerPhoto(e.target.files?.[0] || null)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-2 text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-gray-800 file:text-gray-300" />
             </div>
           </div>
-          <button disabled={loading || !playerTeamId} type="submit" className="w-full bg-brand-purple hover:bg-brand-dark text-white font-bold py-3 px-4 rounded-lg transition-colors disabled:opacity-50">
-            {loading ? 'Saving...' : (selectedPlayerId === 'new' ? 'Add Player' : 'Update Player')}
-          </button>
+          <div className="flex gap-4">
+            <button disabled={loading || !playerTeamId} type="submit" className="flex-1 bg-brand-purple hover:bg-brand-dark text-white font-bold py-3 px-4 rounded-lg transition-colors disabled:opacity-50">
+              {loading ? 'Saving...' : (selectedPlayerId === 'new' ? 'Add Player' : 'Update Player')}
+            </button>
+            {selectedPlayerId !== 'new' && (
+              confirmDeletePlayer ? (
+                <div className="flex gap-2">
+                  <button disabled={loading} type="button" onClick={handleDeletePlayer} className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50">
+                    Yes, Delete
+                  </button>
+                  <button disabled={loading} type="button" onClick={() => setConfirmDeletePlayer(false)} className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50">
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button disabled={loading} type="button" onClick={() => setConfirmDeletePlayer(true)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50">
+                  Delete
+                </button>
+              )
+            )}
+          </div>
         </form>
       )}
 

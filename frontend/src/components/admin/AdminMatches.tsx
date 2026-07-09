@@ -15,6 +15,7 @@ export function AdminMatches() {
 
   // Selected Match for Editing
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   
   // Match Edit State
   const [scoreA, setScoreA] = useState<number>(0);
@@ -26,7 +27,6 @@ export function AdminMatches() {
   // New Match State
   const [newMatchTeamA, setNewMatchTeamA] = useState('');
   const [newMatchTeamB, setNewMatchTeamB] = useState('');
-  const [newMatchDate, setNewMatchDate] = useState('');
   const [newMatchStage, setNewMatchStage] = useState('Group');
   const [newMatchOrder, setNewMatchOrder] = useState<number>(1);
   
@@ -51,7 +51,7 @@ export function AdminMatches() {
 
   const handleAddMatch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMatchTeamA || !newMatchTeamB || !newMatchDate) return;
+    if (!newMatchTeamA || !newMatchTeamB) return;
     setLoading(true);
     setMessage('');
     try {
@@ -59,7 +59,7 @@ export function AdminMatches() {
         team_a_id: newMatchTeamA,
         team_b_id: newMatchTeamB,
         stage: newMatchStage,
-        match_date: new Date(newMatchDate).toISOString(),
+        match_date: new Date().toISOString(),
         match_order: newMatchOrder,
         status: 'Scheduled'
       });
@@ -145,10 +145,33 @@ export function AdminMatches() {
     }
   };
 
+  const deleteMatch = async (matchId: string) => {
+    if (!matchId) {
+      alert("Error: Match ID is missing.");
+      return;
+    }
+    setLoading(true);
+    setMessage('');
+    try {
+      await supabase.from('match_events').delete().eq('match_id', matchId);
+      const { error } = await supabase.from('matches').delete().eq('id', matchId);
+      if (error) throw error;
+      
+      setMessage('Match deleted successfully!');
+      setConfirmDeleteId(null);
+      await fetchData();
+    } catch (err: any) {
+      setMessage(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (selectedMatch) {
     const teamA = teams.find(t => t.id === selectedMatch.team_a_id);
     const teamB = teams.find(t => t.id === selectedMatch.team_b_id);
-    const matchPlayers = players.filter(p => p.team_id === teamA?.id || p.team_id === teamB?.id);
+    const playingRoles = ['Regular', 'Captain', 'Vice Captain', 'Retained'];
+    const matchPlayers = players.filter(p => (p.team_id === teamA?.id || p.team_id === teamB?.id) && playingRoles.includes(p.squad_role || 'Regular'));
     const isTied = scoreA === scoreB;
 
     return (
@@ -281,10 +304,6 @@ export function AdminMatches() {
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-400">Match Date & Time</label>
-            <input required type="datetime-local" value={newMatchDate} onChange={e => setNewMatchDate(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white" />
-          </div>
-          <div className="space-y-2">
             <label className="text-sm font-medium text-gray-400">Stage</label>
             <select value={newMatchStage} onChange={e => setNewMatchStage(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white">
               <option value="Group">Group Stage</option>
@@ -320,7 +339,6 @@ export function AdminMatches() {
                   <div className="flex-1">
                     <div className="text-xs text-brand-purple font-bold mb-1">{m.stage}</div>
                     <div className="text-white font-medium">{tA?.name} vs {tB?.name}</div>
-                    <div className="text-sm text-gray-500">{new Date(m.match_date).toLocaleDateString()}</div>
                   </div>
                   <div className="flex items-center gap-6">
                     {m.status === 'Completed' ? (
@@ -333,6 +351,17 @@ export function AdminMatches() {
                     <button onClick={() => openMatchEditor(m)} className="text-brand-purple hover:text-white transition-colors text-sm font-medium">
                       {m.status === 'Completed' ? 'Edit Match' : 'Record Result'}
                     </button>
+                    {confirmDeleteId === m.id ? (
+                      <div className="flex gap-2 items-center ml-2">
+                        <span className="text-xs text-gray-400">Sure?</span>
+                        <button onClick={() => deleteMatch(m.id)} className="text-red-500 hover:text-red-400 transition-colors text-sm font-medium">Yes</button>
+                        <button onClick={() => setConfirmDeleteId(null)} className="text-gray-400 hover:text-white transition-colors text-sm font-medium">No</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setConfirmDeleteId(m.id)} className="text-red-500 hover:text-red-400 transition-colors text-sm font-medium ml-2">
+                        Delete
+                      </button>
+                    )}
                   </div>
                 </div>
               )

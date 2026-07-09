@@ -49,8 +49,9 @@ export function useTournamentData() {
   
   const [topScorer, setTopScorer] = useState<PlayerStats | null>(null);
   const [starPlayer, setStarPlayer] = useState<PlayerStats | null>(null);
-  const [allPlayerStats, setAllPlayerStats] = useState<PlayerStats[]>([]);
   const [latestMatch, setLatestMatch] = useState<any>(null);
+  const [upcomingMatch, setUpcomingMatch] = useState<any>(null);
+  const [allPlayerStats, setAllPlayerStats] = useState<PlayerStats[]>([]);
   
   const [loading, setLoading] = useState(true);
 
@@ -166,9 +167,28 @@ export function useTournamentData() {
 
       const allStandings = Array.from(standingsMap.values());
       
-      setStandingsOverall(sortStandings([...allStandings]));
-      setStandingsA(sortStandings(allStandings.filter(t => t.group_name === 'A')));
-      setStandingsB(sortStandings(allStandings.filter(t => t.group_name === 'B')));
+      const sortedOverall = sortStandings([...allStandings]);
+      const sortedA = sortStandings(allStandings.filter(t => t.group_name === 'A'));
+      const sortedB = sortStandings(allStandings.filter(t => t.group_name === 'B'));
+
+      setStandingsOverall(sortedOverall);
+      setStandingsA(sortedA);
+      setStandingsB(sortedB);
+      
+      // Helper function to get team position string
+      const getTeamPosition = (teamId: string) => {
+        const teamObj = fetchedTeams.find(t => t.id === teamId);
+        if (!teamObj) return undefined;
+        
+        if (teamObj.group_name === 'A') {
+           const pos = sortedA.findIndex(t => t.id === teamId) + 1;
+           return pos > 0 ? `Grp A - ${pos}` : undefined;
+        } else if (teamObj.group_name === 'B') {
+           const pos = sortedB.findIndex(t => t.id === teamId) + 1;
+           return pos > 0 ? `Grp B - ${pos}` : undefined;
+        }
+        return undefined;
+      };
 
       // --- CALCULATE PLAYER STATS ---
       const playerStatsMap = new Map<string, PlayerStats>();
@@ -239,11 +259,30 @@ export function useTournamentData() {
         setLatestMatch({
           status: latest.status as any,
           stage: latest.stage,
-          teamA: { name: teamA?.name || 'TBA', score: latest.team_a_score || 0, logo: teamA?.logo_url || '', penalty: latest.team_a_penalties },
-          teamB: { name: teamB?.name || 'TBA', score: latest.team_b_score || 0, logo: teamB?.logo_url || '', penalty: latest.team_b_penalties },
+          teamA: { name: teamA?.name || 'TBA', score: latest.team_a_score || 0, logo: teamA?.logo_url || '', penalty: latest.team_a_penalties, position: teamA ? getTeamPosition(teamA.id) : undefined },
+          teamB: { name: teamB?.name || 'TBA', score: latest.team_b_score || 0, logo: teamB?.logo_url || '', penalty: latest.team_b_penalties, position: teamB ? getTeamPosition(teamB.id) : undefined },
           date: new Date(latest.match_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
           events: { goals: eventsList }
         });
+      } else {
+        setLatestMatch(null);
+      }
+
+      // --- UPCOMING MATCH ---
+      const upcoming = fetchedMatches.find(m => m.status === 'Scheduled');
+      if (upcoming) {
+        const teamA = fetchedTeams.find(t => t.id === upcoming.team_a_id);
+        const teamB = fetchedTeams.find(t => t.id === upcoming.team_b_id);
+        
+        setUpcomingMatch({
+          status: upcoming.status as any,
+          stage: upcoming.stage,
+          teamA: { name: teamA?.name || 'TBA', score: null, logo: teamA?.logo_url || '', position: teamA ? getTeamPosition(teamA.id) : undefined },
+          teamB: { name: teamB?.name || 'TBA', score: null, logo: teamB?.logo_url || '', position: teamB ? getTeamPosition(teamB.id) : undefined },
+          date: new Date(upcoming.match_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        });
+      } else {
+        setUpcomingMatch(null);
       }
 
     } catch (err) {
@@ -268,6 +307,7 @@ export function useTournamentData() {
     topScorer,
     starPlayer,
     latestMatch,
+    upcomingMatch,
     loading,
     refetch: fetchData
   };

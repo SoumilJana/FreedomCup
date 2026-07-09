@@ -5,7 +5,7 @@ import { useTournamentData } from '../hooks/useTournamentData';
 import { HeroBanner } from '../components/HeroBanner';
 
 export function Home() {
-  const { teams, standingsA, standingsB, standingsOverall, topScorer, starPlayer, latestMatch, loading } = useTournamentData();
+  const { teams, standingsA, standingsB, standingsOverall, topScorer, starPlayer, latestMatch, upcomingMatch, loading } = useTournamentData();
 
   return (
     <div className="space-y-16 py-8">
@@ -115,8 +115,20 @@ export function Home() {
                 </div>
               </div>
             )}
+
+            {upcomingMatch && (
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                  <span className="w-2 h-8 bg-brand-purple rounded-full block"></span>
+                  Upcoming Match
+                </h2>
+                <div className="flex justify-center xl:justify-start">
+                  <MatchCard match={upcomingMatch} />
+                </div>
+              </div>
+            )}
             
-            {!latestMatch && !topScorer && !starPlayer && (
+            {!latestMatch && !upcomingMatch && !topScorer && !starPlayer && (
                <div className="p-8 bg-gray-900 border border-gray-800 rounded-xl text-center text-gray-500">
                   Waiting for the first match to complete to calculate stats!
                </div>

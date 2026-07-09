@@ -43,13 +43,13 @@ export function PlayerCard({ player }: PlayerCardProps) {
                 </span>
               )}
             </h3>
-            <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">
+            <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">
               {player.squad_role && player.squad_role !== 'Regular'
                 ? (player.squad_role === 'Retained' ? 'Retained Player' : player.squad_role)
                 : player.position}
             </p>
           </div>
-          <span className="text-4xl font-black text-brand-purple/40">{player.jersey_number}</span>
+          <span className="text-5xl font-black text-brand-purple drop-shadow-md">{player.jersey_number}</span>
         </div>
       </div>
 

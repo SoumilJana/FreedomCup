@@ -1,53 +1,17 @@
-import { useState, useEffect } from 'react';
 import { PlayerCard } from '../components/PlayerCard';
 import { LeagueTable } from '../components/LeagueTable';
 import { MatchCard } from '../components/MatchCard';
 import { useTournamentData } from '../hooks/useTournamentData';
-
-const heroImages = [
-  '/herobanner/herobanner1.png',
-  '/herobanner/herobanner2.jpg'
-];
+import { HeroBanner } from '../components/HeroBanner';
 
 export function Home() {
   const { teams, standingsA, standingsB, standingsOverall, topScorer, starPlayer, latestMatch, loading } = useTournamentData();
-  const [currentImage, setCurrentImage] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % heroImages.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
 
   return (
     <div className="space-y-16 py-8">
       
       {/* Hero Section */}
-      <section className="relative w-full rounded-2xl overflow-hidden border border-gray-800 shadow-2xl h-[250px] sm:h-[350px] md:h-[450px] lg:h-[600px]">
-        {heroImages.map((src, index) => (
-          <img 
-            key={src}
-            src={src} 
-            alt={`Freedom Cup 2026 Banner ${index + 1}`} 
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-              index === currentImage ? 'opacity-100 z-10' : 'opacity-0 z-0'
-            }`} 
-          />
-        ))}
-
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-20">
-          {heroImages.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentImage(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentImage ? 'bg-brand-purple w-8 shadow-[0_0_10px_rgba(139,92,246,0.8)]' : 'bg-white/50 hover:bg-white/80'
-              }`}
-            />
-          ))}
-        </div>
-      </section>
+      <HeroBanner />
 
       {loading ? (
         <div className="text-center py-20 text-gray-500">Loading Tournament Data...</div>

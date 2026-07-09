@@ -106,16 +106,7 @@ export function useTournamentData() {
 
         if (scoreA > scoreB) winnerA = true;
         else if (scoreB > scoreA) winnerB = true;
-        else {
-          // tie - check penalties if it's knockout
-          if (m.team_a_penalties != null && m.team_b_penalties != null) {
-             if (m.team_a_penalties > m.team_b_penalties) winnerA = true;
-             else if (m.team_b_penalties > m.team_a_penalties) winnerB = true;
-             else draw = true;
-          } else {
-             draw = true;
-          }
-        }
+        else draw = true;
 
         // Update Team A
         teamA.played++;
@@ -142,7 +133,34 @@ export function useTournamentData() {
         return arr.sort((a, b) => {
           if (b.points !== a.points) return b.points - a.points;
           if (b.gd !== a.gd) return b.gd - a.gd;
-          return b.gf - a.gf;
+          if (a.ga !== b.ga) return a.ga - b.ga; // Lower GA is better
+          
+          // Head to head match
+          const headToHead = completedMatches.find(m => 
+            (m.team_a_id === a.id && m.team_b_id === b.id) || 
+            (m.team_a_id === b.id && m.team_b_id === a.id)
+          );
+          
+          if (headToHead) {
+            const isA_TeamA = headToHead.team_a_id === a.id;
+            const scoreA = isA_TeamA ? (headToHead.team_a_score || 0) : (headToHead.team_b_score || 0);
+            const scoreB = isA_TeamA ? (headToHead.team_b_score || 0) : (headToHead.team_a_score || 0);
+            
+            if (scoreA !== scoreB) {
+              return scoreB - scoreA;
+            }
+            
+            // If match was drawn, check penalties
+            if (headToHead.team_a_penalties != null && headToHead.team_b_penalties != null) {
+               const penA = isA_TeamA ? headToHead.team_a_penalties : headToHead.team_b_penalties;
+               const penB = isA_TeamA ? headToHead.team_b_penalties : headToHead.team_a_penalties;
+               if (penA !== penB) {
+                 return penB - penA;
+               }
+            }
+          }
+          
+          return 0;
         });
       };
 

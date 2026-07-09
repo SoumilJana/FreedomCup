@@ -105,15 +105,15 @@ export function AdminMatches() {
     setMessage('');
     try {
       // 1. Update Match record
-      const isKnockout = selectedMatch.stage !== 'Group';
       const isTied = scoreA === scoreB;
+      
       const { error: matchError } = await supabase.from('matches')
         .update({
           status: 'Completed',
           team_a_score: scoreA,
           team_b_score: scoreB,
-          team_a_penalties: (isKnockout && isTied) ? penaltiesA : null,
-          team_b_penalties: (isKnockout && isTied) ? penaltiesB : null,
+          team_a_penalties: isTied ? penaltiesA : null,
+          team_b_penalties: isTied ? penaltiesB : null,
           motm_player_id: motmPlayerId || null
         })
         .eq('id', selectedMatch.id);
@@ -149,7 +149,6 @@ export function AdminMatches() {
     const teamA = teams.find(t => t.id === selectedMatch.team_a_id);
     const teamB = teams.find(t => t.id === selectedMatch.team_b_id);
     const matchPlayers = players.filter(p => p.team_id === teamA?.id || p.team_id === teamB?.id);
-    const isKnockout = selectedMatch.stage !== 'Group';
     const isTied = scoreA === scoreB;
 
     return (
@@ -165,7 +164,7 @@ export function AdminMatches() {
             <h3 className="text-lg font-bold text-white">{teamA?.name}</h3>
             <input type="number" min="0" value={scoreA} onChange={e => setScoreA(parseInt(e.target.value) || 0)} className="w-24 text-center bg-gray-900 border border-gray-700 rounded p-2 text-2xl text-white outline-none focus:border-brand-purple" />
             
-            {isKnockout && isTied && (
+            {isTied && (
                <div className="pt-4 border-t border-gray-800">
                  <label className="block text-sm text-gray-400 mb-1">Penalty Score</label>
                  <input type="number" min="0" value={penaltiesA} onChange={e => setPenaltiesA(parseInt(e.target.value) || 0)} className="w-24 text-center bg-gray-900 border border-gray-700 rounded p-2 text-xl text-yellow-400 outline-none" />
@@ -176,7 +175,7 @@ export function AdminMatches() {
             <h3 className="text-lg font-bold text-white">{teamB?.name}</h3>
             <input type="number" min="0" value={scoreB} onChange={e => setScoreB(parseInt(e.target.value) || 0)} className="w-24 text-center bg-gray-900 border border-gray-700 rounded p-2 text-2xl text-white outline-none focus:border-brand-purple" />
             
-            {isKnockout && isTied && (
+            {isTied && (
                <div className="pt-4 border-t border-gray-800">
                  <label className="block text-sm text-gray-400 mb-1">Penalty Score</label>
                  <input type="number" min="0" value={penaltiesB} onChange={e => setPenaltiesB(parseInt(e.target.value) || 0)} className="w-24 text-center bg-gray-900 border border-gray-700 rounded p-2 text-xl text-yellow-400 outline-none" />

@@ -43,10 +43,12 @@ function TeamProfileContent({ team, teamId }: { team: any, teamId: string }) {
     };
   });
 
+  const teamOwner = squad.find(p => p.squad_role === 'Team Owner');
+  const representatives = squad.filter(p => p.squad_role === 'Representative');
   const captain = squad.find(p => p.squad_role === 'Captain');
   const viceCaptain = squad.find(p => p.squad_role === 'Vice Captain');
   const retained = squad.find(p => p.squad_role === 'Retained');
-  const regulars = squad.filter(p => !['Captain', 'Vice Captain', 'Retained'].includes(p.squad_role || ''));
+  const regulars = squad.filter(p => !['Captain', 'Vice Captain', 'Retained', 'Team Owner', 'Representative'].includes(p.squad_role || ''));
 
   return (
     <div className="space-y-12 py-8">
@@ -83,6 +85,34 @@ function TeamProfileContent({ team, teamId }: { team: any, teamId: string }) {
           )}
         </div>
       </div>
+
+      {/* Team Owner Section */}
+      {teamOwner && (
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <span className="w-2 h-8 bg-brand-purple rounded-full block"></span>
+            Team Owner
+          </h2>
+          <div className="flex flex-wrap justify-center md:justify-start gap-6">
+            <PlayerCard player={teamOwner as any} />
+          </div>
+        </div>
+      )}
+
+      {/* Representatives Section */}
+      {representatives.length > 0 && (
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <span className="w-2 h-8 bg-blue-500 rounded-full block"></span>
+            Representatives
+          </h2>
+          <div className="flex flex-wrap justify-center md:justify-start gap-6">
+            {representatives.map(rep => (
+              <PlayerCard key={rep.id} player={rep as any} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Leadership & Retained Section */}
       <div className="space-y-6">

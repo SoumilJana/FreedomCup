@@ -278,6 +278,8 @@ export function Admin() {
                 <option value="Captain">Captain</option>
                 <option value="Vice Captain">Vice Captain</option>
                 <option value="Retained">Retained Player</option>
+                <option value="Team Owner">Team Owner</option>
+                <option value="Representative">Representative</option>
               </select>
             </div>
             <div className="space-y-2">

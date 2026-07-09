@@ -3,6 +3,7 @@ import imageCompression from 'browser-image-compression';
 import { supabase } from '../lib/supabase';
 import type { Database } from '../types/database.types';
 import { AdminMatches } from '../components/admin/AdminMatches';
+import { GroupDraw } from '../components/admin/GroupDraw';
 
 type Team = Database['public']['Tables']['teams']['Row'];
 
@@ -231,7 +232,7 @@ export function Admin() {
           onClick={() => setActiveTab('groups')}
           className={`whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === 'groups' ? 'bg-brand-purple text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}
         >
-          Assign Groups
+          Group Draw
         </button>
         <button 
           onClick={() => setActiveTab('matches')}
@@ -247,42 +248,7 @@ export function Admin() {
         </div>
       )}
 
-      {activeTab === 'groups' && (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-6">
-          <h2 className="text-xl font-bold text-white mb-4">Assign Teams to Groups</h2>
-          <div className="grid gap-4">
-            {teams.map(team => (
-              <div key={team.id} className="flex items-center justify-between p-4 bg-gray-950 rounded-lg border border-gray-800">
-                <div className="font-medium text-white">{team.name}</div>
-                <select 
-                  value={team.group_name || ''} 
-                  onChange={async (e) => {
-                    const newGroup = e.target.value || null;
-                    const { data, error } = await supabase.from('teams').update({ group_name: newGroup }).eq('id', team.id).select();
-                    if (error) {
-                      alert(`Error updating group: ${error.message}`);
-                    } else if (!data || data.length === 0) {
-                      alert(`Error: The group update failed. Please check your Supabase RLS policies for the 'teams' table to ensure you have an UPDATE policy allowed.`);
-                      // Revert local state by triggering a re-render with existing team data
-                      setTeams([...teams]);
-                    } else {
-                      setTeams(teams.map(t => t.id === team.id ? { ...t, group_name: newGroup } : t));
-                    }
-                  }}
-                  className="bg-gray-900 border border-gray-700 rounded-lg p-2 text-white focus:border-brand-purple outline-none"
-                >
-                  <option value="">Unassigned</option>
-                  <option value="A">Group A</option>
-                  <option value="B">Group B</option>
-                </select>
-              </div>
-            ))}
-            {teams.length === 0 && (
-              <div className="text-gray-400 text-center py-4">No teams added yet.</div>
-            )}
-          </div>
-        </div>
-      )}
+      {activeTab === 'groups' && <GroupDraw />}
 
       {activeTab === 'players' && (
         <form onSubmit={handleAddPlayer} className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-6">

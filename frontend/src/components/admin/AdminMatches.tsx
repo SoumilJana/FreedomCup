@@ -28,6 +28,7 @@ export function AdminMatches() {
   const [newMatchTeamA, setNewMatchTeamA] = useState('');
   const [newMatchTeamB, setNewMatchTeamB] = useState('');
   const [newMatchStage, setNewMatchStage] = useState('Group');
+  const [newMatchGroup, setNewMatchGroup] = useState('A');
   const [newMatchOrder, setNewMatchOrder] = useState<number>(1);
   
   // Match Events State
@@ -290,27 +291,53 @@ export function AdminMatches() {
         <h3 className="text-lg font-bold text-white mb-4">Create Manual Match</h3>
         <form onSubmit={handleAddMatch} className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-400">Stage</label>
+            <select value={newMatchStage} onChange={e => {
+              setNewMatchStage(e.target.value);
+              // Reset team selections when changing stage
+              setNewMatchTeamA('');
+              setNewMatchTeamB('');
+            }} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white">
+              <option value="Group">Group Stage</option>
+              <option value="Semi-Final">Semi-Final</option>
+              <option value="Final">Final</option>
+            </select>
+          </div>
+
+          {newMatchStage === 'Group' && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-400">Group</label>
+              <select value={newMatchGroup} onChange={e => {
+                setNewMatchGroup(e.target.value);
+                // Reset team selections when changing group
+                setNewMatchTeamA('');
+                setNewMatchTeamB('');
+              }} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white">
+                <option value="A">Group A</option>
+                <option value="B">Group B</option>
+              </select>
+            </div>
+          )}
+
+          <div className="space-y-2">
             <label className="text-sm font-medium text-gray-400">Team A</label>
             <select required value={newMatchTeamA} onChange={e => setNewMatchTeamA(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white">
               <option value="">Select Team...</option>
-              {teams.map(t => <option key={t.id} value={t.id}>{t.name} {t.group_name ? `(Gr ${t.group_name})` : ''}</option>)}
+              {teams
+                .filter(t => newMatchStage === 'Group' ? t.group_name === newMatchGroup : true)
+                .map(t => <option key={t.id} value={t.id}>{t.name} {t.group_name ? `(Gr ${t.group_name})` : ''}</option>)}
             </select>
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-400">Team B</label>
             <select required value={newMatchTeamB} onChange={e => setNewMatchTeamB(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white">
               <option value="">Select Team...</option>
-              {teams.map(t => <option key={t.id} value={t.id}>{t.name} {t.group_name ? `(Gr ${t.group_name})` : ''}</option>)}
+              {teams
+                .filter(t => newMatchStage === 'Group' ? t.group_name === newMatchGroup : true)
+                .map(t => <option key={t.id} value={t.id}>{t.name} {t.group_name ? `(Gr ${t.group_name})` : ''}</option>)}
             </select>
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-400">Stage</label>
-            <select value={newMatchStage} onChange={e => setNewMatchStage(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white">
-              <option value="Group">Group Stage</option>
-              <option value="Semi-Final">Semi-Final</option>
-              <option value="Final">Final</option>
-            </select>
-          </div>
+
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-400">Match Order (Sorting)</label>
             <input required type="number" min="1" value={newMatchOrder} onChange={e => setNewMatchOrder(parseInt(e.target.value) || 1)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white" />

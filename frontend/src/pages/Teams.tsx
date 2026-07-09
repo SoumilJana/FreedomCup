@@ -25,13 +25,13 @@ export function Teams() {
             <Link 
               key={team.id} 
               to={`/team/${team.id}`} 
-              className="bg-gray-950/50 border border-gray-800 rounded-2xl p-8 flex flex-col items-center justify-center gap-6 hover:border-brand-purple/50 hover:bg-gray-900 transition-all duration-300 hover:-translate-y-1 group"
+              className="bg-gray-950/50 border border-gray-800 rounded-2xl p-6 flex flex-col items-center justify-center gap-6 hover:border-brand-purple/50 hover:bg-gray-900 transition-all duration-300 hover:-translate-y-1 group"
             >
-              <div className="w-32 h-32 rounded-full bg-gray-950 border border-gray-800 flex items-center justify-center overflow-hidden shadow-2xl p-3 group-hover:scale-105 transition-transform duration-300">
+              <div className="w-full h-48 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
                 {team.logo_url ? (
-                  <img src={team.logo_url} alt={team.name} className="w-full h-full object-contain" />
+                  <img src={team.logo_url} alt={team.name} className="w-full h-full object-contain drop-shadow-lg" />
                 ) : (
-                  <span className="text-3xl font-bold text-gray-500">{team.name.charAt(0)}</span>
+                  <span className="text-4xl font-bold text-gray-500">{team.name.charAt(0)}</span>
                 )}
               </div>
               <div className="text-center space-y-3">

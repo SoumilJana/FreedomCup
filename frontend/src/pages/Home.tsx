@@ -47,16 +47,16 @@ export function Home() {
               <>
 
                 <div className="space-y-4">
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <span className="w-2 h-8 bg-brand-purple rounded-full block"></span>
+                  <h2 className="text-3xl font-black text-white uppercase tracking-tight flex items-center gap-3">
+                    <span className="w-2.5 h-8 bg-yellow-400 rounded-sm block"></span>
                     Group A Standings
                   </h2>
                   <LeagueTable teams={standingsA} />
                 </div>
 
-                <div className="space-y-4">
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <span className="w-2 h-8 bg-brand-purple rounded-full block"></span>
+                <div className="space-y-4 pt-6">
+                  <h2 className="text-3xl font-black text-white uppercase tracking-tight flex items-center gap-3">
+                    <span className="w-2.5 h-8 bg-yellow-400 rounded-sm block"></span>
                     Group B Standings
                   </h2>
                   <LeagueTable teams={standingsB} />

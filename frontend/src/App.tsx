@@ -12,14 +12,14 @@ function App() {
     <Router>
       <div className="min-h-screen bg-gray-950 text-gray-50 flex flex-col relative pb-32">
         {/* Top Header Section */}
-        <header className="pt-8 px-4 sm:px-8 absolute top-0 w-full z-50 flex justify-between items-start pointer-events-none">
+        <header className="pt-6 px-4 sm:px-8 absolute top-0 w-full z-50 flex justify-between items-start pointer-events-none">
           <div className="w-10"></div> {/* Spacer for alignment */}
           
           {/* Centered Logo */}
           <div className="flex flex-col items-center pointer-events-auto">
-            <Link to="/" className="flex flex-col items-center hover:opacity-80 transition-opacity gap-2">
-              <img src="/logo.png" alt="Freedom Cup Logo" className="h-20 w-auto" />
-              <div className="text-[10px] sm:text-xs font-bold text-brand-purple tracking-[0.3em] uppercase mt-2">
+            <Link to="/" className="flex flex-col items-center hover:opacity-80 transition-opacity gap-1 relative group">
+              <img src="/logo.png" alt="Freedom Cup Logo" className="h-20 sm:h-24 w-auto drop-shadow-[0_0_10px_rgba(250,204,21,0.2)]" />
+              <div className="text-[10px] sm:text-xs font-bold text-brand-purple tracking-[0.3em] uppercase">
                 5 Years Forged
               </div>
             </Link>
@@ -34,7 +34,7 @@ function App() {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-32">
+        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-40">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/teams" element={<Teams />} />

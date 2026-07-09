@@ -12,7 +12,6 @@ export function Admin() {
   // Team Form State
   const [teamName, setTeamName] = useState('');
   const [teamGroup, setTeamGroup] = useState<'A' | 'B'>('A');
-  const [teamCoach, setTeamCoach] = useState('');
   const [teamLogo, setTeamLogo] = useState<File | null>(null);
   
   // Player Form State
@@ -20,6 +19,7 @@ export function Admin() {
   const [playerName, setPlayerName] = useState('');
   const [playerJersey, setPlayerJersey] = useState('');
   const [playerPosition, setPlayerPosition] = useState('Forward');
+  const [playerRole, setPlayerRole] = useState('Regular');
   const [playerPhoto, setPlayerPhoto] = useState<File | null>(null);
   
   const [loading, setLoading] = useState(false);
@@ -67,7 +67,6 @@ export function Admin() {
       const { error } = await supabase.from('teams').insert({
         name: teamName,
         group_name: teamGroup,
-        coach: teamCoach || null,
         logo_url
       });
 
@@ -76,7 +75,6 @@ export function Admin() {
       
       // Reset form
       setTeamName('');
-      setTeamCoach('');
       setTeamLogo(null);
       
       // Refresh team list
@@ -107,6 +105,7 @@ export function Admin() {
         name: playerName,
         jersey_number: parseInt(playerJersey),
         position: playerPosition,
+        squad_role: playerRole,
         photo_url
       });
 
@@ -116,6 +115,7 @@ export function Admin() {
       // Reset form
       setPlayerName('');
       setPlayerJersey('');
+      setPlayerRole('Regular');
       setPlayerPhoto(null);
     } catch (err: any) {
       setMessage(`Error: ${err.message}`);
@@ -173,10 +173,6 @@ export function Admin() {
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-400">Coach Name</label>
-              <input type="text" value={teamCoach} onChange={e => setTeamCoach(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:border-brand-purple outline-none" placeholder="Optional" />
-            </div>
-            <div className="space-y-2">
               <label className="text-sm font-medium text-gray-400">Team Logo Image</label>
               <input type="file" accept="image/*" onChange={e => setTeamLogo(e.target.files?.[0] || null)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-2 text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-gray-800 file:text-gray-300" />
             </div>
@@ -214,6 +210,15 @@ export function Admin() {
                 <option value="Midfielder">Midfielder</option>
                 <option value="Defender">Defender</option>
                 <option value="Goalkeeper">Goalkeeper</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-400">Squad Role *</label>
+              <select value={playerRole} onChange={e => setPlayerRole(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:border-brand-purple outline-none">
+                <option value="Regular">Regular Player</option>
+                <option value="Captain">Captain</option>
+                <option value="Vice Captain">Vice Captain</option>
+                <option value="Retained">Retained Player</option>
               </select>
             </div>
             <div className="space-y-2">

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 type MatchResult = 'W' | 'D' | 'L';
 
@@ -68,7 +69,9 @@ export function LeagueTable({ teams }: LeagueTableProps) {
                       <span className="text-xs font-bold text-gray-500">{team.name.charAt(0)}</span>
                     )}
                   </div>
-                  <span className="font-semibold text-white">{team.name}</span>
+                  <Link to={`/team/${team.id}`} className="font-semibold text-white hover:text-brand-purple transition-colors">
+                    {team.name}
+                  </Link>
                 </div>
               </td>
               <td className="px-4 py-4 text-center">{team.played}</td>

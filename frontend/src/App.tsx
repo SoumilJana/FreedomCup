@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Admin } from './pages/Admin';
+import { TeamProfile } from './pages/TeamProfile';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/team/:id" element={<TeamProfile />} />
           </Routes>
         </main>
         

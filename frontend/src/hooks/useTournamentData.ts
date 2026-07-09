@@ -51,6 +51,7 @@ export function useTournamentData() {
   
   const [topScorer, setTopScorer] = useState<PlayerStats | null>(null);
   const [starPlayer, setStarPlayer] = useState<PlayerStats | null>(null);
+  const [allPlayerStats, setAllPlayerStats] = useState<PlayerStats[]>([]);
   const [latestMatch, setLatestMatch] = useState<any>(null);
   
   const [loading, setLoading] = useState(true);
@@ -190,14 +191,15 @@ export function useTournamentData() {
         }
       });
 
-      const allPlayerStats = Array.from(playerStatsMap.values());
+      const allPlayerStatsArray = Array.from(playerStatsMap.values());
+      setAllPlayerStats(allPlayerStatsArray);
       
       // Top Scorer
-      const topScorerPlayer = [...allPlayerStats].sort((a, b) => b.stats.goals - a.stats.goals)[0];
+      const topScorerPlayer = [...allPlayerStatsArray].sort((a, b) => b.stats.goals - a.stats.goals)[0];
       setTopScorer(topScorerPlayer?.stats.goals > 0 ? topScorerPlayer : null);
 
       // Star Player (Highest MOTM, tie-breaker goals)
-      const star = [...allPlayerStats].sort((a, b) => {
+      const star = [...allPlayerStatsArray].sort((a, b) => {
         if (b.stats.motm !== a.stats.motm) return b.stats.motm - a.stats.motm;
         return b.stats.goals - a.stats.goals;
       })[0];
@@ -249,6 +251,7 @@ export function useTournamentData() {
     standingsA,
     standingsB,
     standingsOverall,
+    allPlayerStats,
     topScorer,
     starPlayer,
     latestMatch,

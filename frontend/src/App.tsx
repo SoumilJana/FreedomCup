@@ -1,7 +1,8 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, NavLink } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Admin } from './pages/Admin';
 import { TeamProfile } from './pages/TeamProfile';
+import { Teams } from './pages/Teams';
 
 function App() {
   return (
@@ -18,10 +19,10 @@ function App() {
                 </h1>
               </Link>
               <nav className="hidden md:flex gap-6">
-                <Link to="/" className="text-sm font-medium text-white hover:text-brand-purple transition-colors">Home</Link>
-                <Link to="#" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Teams</Link>
-                <Link to="#" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Fixtures</Link>
-                <Link to="#" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Bracket</Link>
+                <NavLink to="/" className={({isActive}) => `text-sm font-medium transition-colors ${isActive ? 'text-white hover:text-brand-purple' : 'text-gray-400 hover:text-white'}`}>Home</NavLink>
+                <NavLink to="/teams" className={({isActive}) => `text-sm font-medium transition-colors ${isActive ? 'text-white hover:text-brand-purple' : 'text-gray-400 hover:text-white'}`}>Teams</NavLink>
+                <NavLink to="/fixtures" className={({isActive}) => `text-sm font-medium transition-colors ${isActive ? 'text-white hover:text-brand-purple' : 'text-gray-400 hover:text-white'}`}>Fixtures</NavLink>
+                <NavLink to="/bracket" className={({isActive}) => `text-sm font-medium transition-colors ${isActive ? 'text-white hover:text-brand-purple' : 'text-gray-400 hover:text-white'}`}>Bracket</NavLink>
               </nav>
             </div>
             <div>
@@ -35,6 +36,7 @@ function App() {
         <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/teams" element={<Teams />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/team/:id" element={<TeamProfile />} />
           </Routes>

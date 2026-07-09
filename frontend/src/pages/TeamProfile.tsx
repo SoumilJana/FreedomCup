@@ -53,33 +53,37 @@ function TeamProfileContent({ team, teamId }: { team: any, teamId: string }) {
   return (
     <div className="space-y-12 py-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-center gap-8 bg-gray-900 border border-gray-800 p-8 rounded-2xl">
-        <div className="w-32 h-32 bg-gray-950 rounded-full flex items-center justify-center border-4 border-gray-800 overflow-hidden">
+      <div className="relative flex flex-col md:flex-row items-center gap-6 md:gap-8 bg-[#111116] border border-gray-800/60 p-6 md:px-10 md:py-8 rounded-3xl overflow-hidden shadow-2xl">
+        {/* Subtle background glow */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-purple/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+        
+        <div className="relative w-36 h-36 bg-gray-900/50 rounded-full flex items-center justify-center border border-gray-700/50 shadow-[0_0_30px_rgba(0,0,0,0.5)] z-10 p-3">
           {team.logo_url ? (
-            <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover" />
+            <img src={team.logo_url} alt={team.name} className="w-full h-full object-contain drop-shadow-2xl" />
           ) : (
             <span className="text-4xl text-gray-700 font-black">{team.name.charAt(0)}</span>
           )}
         </div>
-        <div className="text-center md:text-left">
-          <div className="text-brand-purple font-bold text-sm tracking-widest uppercase mb-1">
+        
+        <div className="text-center md:text-left z-10">
+          <div className="inline-block px-3 py-1 bg-brand-purple/10 border border-brand-purple/20 rounded-full text-brand-purple font-bold text-[10px] tracking-widest uppercase mb-3">
             {team.group_name ? `Group ${team.group_name}` : 'Unassigned'}
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-white">{team.name}</h1>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight drop-shadow-md mb-5">{team.name}</h1>
           
           {teamStandings && (
-            <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-6">
-              <div className="bg-gray-950 px-4 py-2 rounded border border-gray-800 text-center">
-                <div className="text-xs text-gray-500 uppercase tracking-wider">Points</div>
-                <div className="text-xl font-bold text-white">{teamStandings.points}</div>
+            <div className="flex flex-wrap justify-center md:justify-start gap-4">
+              <div className="bg-white/5 backdrop-blur-md px-5 py-2 rounded-xl border border-white/10 text-center min-w-[100px]">
+                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Points</div>
+                <div className="text-2xl font-black text-white">{teamStandings.points}</div>
               </div>
-              <div className="bg-gray-950 px-4 py-2 rounded border border-gray-800 text-center">
-                <div className="text-xs text-gray-500 uppercase tracking-wider">Played</div>
-                <div className="text-xl font-bold text-white">{teamStandings.played}</div>
+              <div className="bg-white/5 backdrop-blur-md px-5 py-2 rounded-xl border border-white/10 text-center min-w-[100px]">
+                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Played</div>
+                <div className="text-2xl font-black text-white">{teamStandings.played}</div>
               </div>
-              <div className="bg-gray-950 px-4 py-2 rounded border border-gray-800 text-center">
-                <div className="text-xs text-gray-500 uppercase tracking-wider">Goal Diff</div>
-                <div className="text-xl font-bold text-white">{teamStandings.gd > 0 ? `+${teamStandings.gd}` : teamStandings.gd}</div>
+              <div className="bg-white/5 backdrop-blur-md px-5 py-2 rounded-xl border border-white/10 text-center min-w-[100px]">
+                <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Goal Diff</div>
+                <div className="text-2xl font-black text-white">{teamStandings.gd > 0 ? `+${teamStandings.gd}` : teamStandings.gd}</div>
               </div>
             </div>
           )}
@@ -95,21 +99,6 @@ function TeamProfileContent({ team, teamId }: { team: any, teamId: string }) {
           </h2>
           <div className="flex flex-wrap justify-center md:justify-start gap-6">
             <PlayerCard player={teamOwner as any} />
-          </div>
-        </div>
-      )}
-
-      {/* Representatives Section */}
-      {representatives.length > 0 && (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <span className="w-2 h-8 bg-blue-500 rounded-full block"></span>
-            Representatives
-          </h2>
-          <div className="flex flex-wrap justify-center md:justify-start gap-6">
-            {representatives.map(rep => (
-              <PlayerCard key={rep.id} player={rep as any} />
-            ))}
           </div>
         </div>
       )}
@@ -135,6 +124,21 @@ function TeamProfileContent({ team, teamId }: { team: any, teamId: string }) {
           )}
         </div>
       </div>
+
+      {/* Representatives Section */}
+      {representatives.length > 0 && (
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <span className="w-2 h-8 bg-blue-500 rounded-full block"></span>
+            Representatives
+          </h2>
+          <div className="flex flex-wrap justify-center md:justify-start gap-6">
+            {representatives.map(rep => (
+              <PlayerCard key={rep.id} player={rep as any} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Full Squad */}
       <div className="space-y-6">

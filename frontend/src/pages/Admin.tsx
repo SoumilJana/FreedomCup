@@ -10,6 +10,14 @@ export function Admin() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [players, setPlayers] = useState<any[]>([]);
 
+  // Auth State
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    sessionStorage.getItem('adminAuth') === 'true'
+  );
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+
   // Player Form State
   const [playerTeamId, setPlayerTeamId] = useState('');
   const [playerName, setPlayerName] = useState('');
@@ -119,6 +127,43 @@ export function Admin() {
       setLoading(false);
     }
   };
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (username === 'admin' && password === 'admin123') {
+      setIsAuthenticated(true);
+      sessionStorage.setItem('adminAuth', 'true');
+    } else {
+      setLoginError('Invalid credentials');
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-md mx-auto py-20 px-4">
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-8">
+          <h1 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+            <span className="w-2 h-6 bg-brand-purple rounded-full block"></span>
+            Admin Login
+          </h1>
+          {loginError && <div className="p-3 bg-red-500/20 text-red-400 border border-red-500/50 rounded-lg mb-4 text-sm">{loginError}</div>}
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-gray-400">Username</label>
+              <input required type="text" value={username} onChange={e => setUsername(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:border-brand-purple outline-none mt-1" />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-400">Password</label>
+              <input required type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:border-brand-purple outline-none mt-1" />
+            </div>
+            <button type="submit" className="w-full bg-brand-purple hover:bg-brand-dark text-white font-bold py-3 px-4 rounded-lg transition-colors mt-6">
+              Login
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto py-8">

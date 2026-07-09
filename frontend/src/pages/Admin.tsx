@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Database } from '../types/database.types';
+import { AdminMatches } from '../components/admin/AdminMatches';
 
 type Team = Database['public']['Tables']['teams']['Row'];
 
 export function Admin() {
-  const [activeTab, setActiveTab] = useState<'teams' | 'players'>('teams');
+  const [activeTab, setActiveTab] = useState<'teams' | 'players' | 'matches'>('teams');
   const [teams, setTeams] = useState<Team[]>([]);
   
   // Team Form State
@@ -143,6 +144,12 @@ export function Admin() {
         >
           Add New Player
         </button>
+        <button 
+          onClick={() => setActiveTab('matches')}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === 'matches' ? 'bg-brand-purple text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}
+        >
+          Match Management
+        </button>
       </div>
 
       {message && (
@@ -219,6 +226,8 @@ export function Admin() {
           </button>
         </form>
       )}
+
+      {activeTab === 'matches' && <AdminMatches />}
     </div>
   );
 }

@@ -36,15 +36,15 @@ export function Home() {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {teams.map(team => (
-                    <a key={team.id} href={`/team/${team.id}`} className="bg-gray-950/50 border border-gray-800 rounded-xl p-4 flex flex-col items-center justify-center gap-4 hover:border-brand-purple/50 hover:bg-gray-900 transition-all group">
-                      <div className="w-full h-24 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                    <a key={team.id} href={`/team/${team.id}`} className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex flex-col items-center justify-center gap-3 hover:border-brand-purple transition-colors">
+                      <div className="w-16 h-16 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center overflow-hidden">
                         {team.logo_url ? (
-                          <img src={team.logo_url} alt={team.name} className="w-full h-full object-contain drop-shadow-md" />
+                          <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover" />
                         ) : (
                           <span className="text-xl font-bold text-gray-500">{team.name.charAt(0)}</span>
                         )}
                       </div>
-                      <div className="text-white font-black uppercase text-center text-sm">{team.name}</div>
+                      <div className="text-white font-bold text-center">{team.name}</div>
                     </a>
                   ))}
                 </div>

@@ -11,9 +11,12 @@ function App() {
         <header className="border-b border-gray-900 bg-gray-950/80 backdrop-blur-md sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div className="flex items-center gap-8">
-              <h1 className="text-xl font-bold text-white uppercase tracking-widest">
-                Freedom <span className="text-brand-purple">Cup</span>
-              </h1>
+              <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <img src="/logo.png" alt="Freedom Cup Logo" className="h-10 w-auto" />
+                <h1 className="text-2xl font-black italic tracking-tighter text-white hidden sm:block">
+                  Freedom <span className="text-brand-purple">Cup</span>
+                </h1>
+              </Link>
               <nav className="hidden md:flex gap-6">
                 <Link to="/" className="text-sm font-medium text-white hover:text-brand-purple transition-colors">Home</Link>
                 <Link to="#" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Teams</Link>

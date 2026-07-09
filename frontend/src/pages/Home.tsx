@@ -12,6 +12,7 @@ export function Home() {
       
       {/* Hero Section */}
       <section className="text-center space-y-4">
+        <img src="/logo.png" alt="Freedom Cup Logo" className="w-40 h-40 mx-auto object-contain drop-shadow-2xl mb-4" />
         <h1 className="text-5xl md:text-6xl font-black tracking-tight text-white">
           The Stage is Set for <br/>
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-purple-400">

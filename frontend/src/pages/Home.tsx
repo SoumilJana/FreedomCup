@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { PlayerCard } from '../components/PlayerCard';
 import { LeagueTable } from '../components/LeagueTable';
 import { MatchCard } from '../components/MatchCard';

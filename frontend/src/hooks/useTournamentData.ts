@@ -5,12 +5,11 @@ import type { Database } from '../types/database.types';
 type Team = Database['public']['Tables']['teams']['Row'];
 type Player = Database['public']['Tables']['players']['Row'];
 type Match = Database['public']['Tables']['matches']['Row'];
-type MatchEvent = Database['public']['Tables']['match_events']['Row'];
 
 export interface TeamStanding {
   id: string;
   name: string;
-  logo_url: string | null;
+  logo_url: string;
   group_name: string;
   played: number;
   won: number;
@@ -28,7 +27,7 @@ export interface PlayerStats {
   name: string;
   jersey_number: number;
   position: string;
-  photo_url: string | null;
+  photo_url: string;
   team_name: string;
   stats: {
     goals: number;
@@ -43,7 +42,6 @@ export function useTournamentData() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
-  const [events, setEvents] = useState<MatchEvent[]>([]);
   
   const [standingsA, setStandingsA] = useState<TeamStanding[]>([]);
   const [standingsB, setStandingsB] = useState<TeamStanding[]>([]);
@@ -74,7 +72,6 @@ export function useTournamentData() {
       setTeams(fetchedTeams);
       setPlayers(fetchedPlayers);
       setMatches(fetchedMatches);
-      setEvents(fetchedEvents);
 
       // --- CALCULATE STANDINGS ---
       const standingsMap = new Map<string, TeamStanding>();
@@ -83,8 +80,8 @@ export function useTournamentData() {
         standingsMap.set(t.id, {
           id: t.id,
           name: t.name,
-          logo_url: t.logo_url,
-          group_name: t.group_name,
+          logo_url: t.logo_url || '',
+          group_name: t.group_name || '',
           played: 0, won: 0, drawn: 0, lost: 0,
           gf: 0, ga: 0, gd: 0, points: 0,
           form: []
@@ -163,9 +160,9 @@ export function useTournamentData() {
         playerStatsMap.set(p.id, {
           id: p.id,
           name: p.name,
-          jersey_number: p.jersey_number,
-          position: p.position,
-          photo_url: p.photo_url,
+          jersey_number: p.jersey_number || 0,
+          position: p.position || '',
+          photo_url: p.photo_url || '',
           team_name: team?.name || 'Unknown',
           stats: { goals: 0, yellow_cards: 0, red_cards: 0, motm: 0, appearances: 0 }
         });
@@ -206,8 +203,7 @@ export function useTournamentData() {
       setStarPlayer(star?.stats.motm > 0 || star?.stats.goals > 0 ? star : null);
 
       // --- LATEST MATCH ---
-      const latest = completedMatches[completedMatches.length - 1]; // Because we reversed it earlier, wait no
-      // actually completedMatches is reversed (chronological). We want the most recent which is the last one in chronological, i.e. latest date.
+      const latest = completedMatches[completedMatches.length - 1]; 
       if (latest) {
         const teamA = fetchedTeams.find(t => t.id === latest.team_a_id);
         const teamB = fetchedTeams.find(t => t.id === latest.team_b_id);
@@ -215,7 +211,6 @@ export function useTournamentData() {
         
         const eventsList = matchGoals.map(g => {
            const p = fetchedPlayers.find(pl => pl.id === g.player_id);
-           const t = fetchedTeams.find(tm => tm.id === g.team_id);
            return {
              player: p?.name || 'Unknown',
              team: (g.team_id === teamA?.id ? 'A' : 'B') as 'A' | 'B',

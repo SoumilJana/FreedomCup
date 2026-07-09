@@ -1,11 +1,10 @@
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useTournamentData } from '../hooks/useTournamentData';
 import { PlayerCard } from '../components/PlayerCard';
 
 export function TeamProfile() {
   const { id } = useParams<{ id: string }>();
-  const { teams, allPlayerStats, loading } = useTournamentData();
+  const { teams, loading } = useTournamentData();
 
   if (loading) {
     return <div className="text-center py-20 text-gray-500">Loading Team Data...</div>;
@@ -93,13 +92,13 @@ function TeamProfileContent({ team, teamId }: { team: any, teamId: string }) {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {captain && (
-            <PlayerCard player={captain as any} highlightColor="border-yellow-500" />
+            <PlayerCard player={captain as any} />
           )}
           {viceCaptain && (
-            <PlayerCard player={viceCaptain as any} highlightColor="border-purple-400" />
+            <PlayerCard player={viceCaptain as any} />
           )}
           {retained && (
-            <PlayerCard player={retained as any} highlightColor="border-blue-400" />
+            <PlayerCard player={retained as any} />
           )}
           {!captain && !viceCaptain && !retained && (
              <div className="col-span-full text-gray-500 py-4">No key personnel assigned yet.</div>

@@ -90,7 +90,7 @@ function TeamProfileContent({ team, teamId }: { team: any, teamId: string }) {
           <span className="w-2 h-8 bg-yellow-500 rounded-full block"></span>
           Key Personnel
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="flex flex-wrap justify-center md:justify-start gap-6">
           {captain && (
             <PlayerCard player={captain as any} />
           )}
@@ -115,7 +115,7 @@ function TeamProfileContent({ team, teamId }: { team: any, teamId: string }) {
         {regulars.length === 0 ? (
           <div className="text-gray-500 py-4">No regular squad players assigned yet.</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="flex flex-wrap justify-center md:justify-start gap-6">
             {regulars.map(p => (
               <PlayerCard key={p.id} player={p as any} />
             ))}

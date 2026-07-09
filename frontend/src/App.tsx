@@ -1,19 +1,44 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { Home } from './pages/Home';
+import { Admin } from './pages/Admin';
 
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-950 text-gray-50">
-        <header className="border-b border-gray-800 p-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-white">
-            Freedom <span className="text-brand-purple">Cup</span>
-          </h1>
+      <div className="min-h-screen bg-gray-950 text-gray-50 flex flex-col">
+        {/* Navigation */}
+        <header className="border-b border-gray-900 bg-gray-950/80 backdrop-blur-md sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-8">
+              <h1 className="text-xl font-bold text-white uppercase tracking-widest">
+                Freedom <span className="text-brand-purple">Cup</span>
+              </h1>
+              <nav className="hidden md:flex gap-6">
+                <Link to="/" className="text-sm font-medium text-white hover:text-brand-purple transition-colors">Home</Link>
+                <Link to="#" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Teams</Link>
+                <Link to="#" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Fixtures</Link>
+                <Link to="#" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Bracket</Link>
+              </nav>
+            </div>
+            <div>
+              {/* Admin portal link */}
+              <Link to="/admin" className="text-sm font-medium text-gray-500 hover:text-white transition-colors">Admin Login</Link>
+            </div>
+          </div>
         </header>
-        <main className="p-4 max-w-7xl mx-auto">
+
+        {/* Main Content */}
+        <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
           <Routes>
-            <Route path="/" element={<div className="mt-10 text-center">Frontend Scaffolding Complete!</div>} />
+            <Route path="/" element={<Home />} />
+            <Route path="/admin" element={<Admin />} />
           </Routes>
         </main>
+        
+        {/* Footer */}
+        <footer className="border-t border-gray-900 py-8 mt-16 text-center text-sm text-gray-600">
+          &copy; 2026 Freedom Cup Tournament. All rights reserved.
+        </footer>
       </div>
     </Router>
   );

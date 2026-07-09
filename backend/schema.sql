@@ -5,9 +5,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE teams (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
-  group_name TEXT CHECK (group_name IN ('A', 'B')) NOT NULL,
+  group_name TEXT CHECK (group_name IN ('A', 'B')),
   logo_url TEXT,
-  coach TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
 );
 
@@ -16,8 +15,8 @@ CREATE TABLE players (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
-  jersey_number INTEGER NOT NULL,
-  position TEXT NOT NULL,
+  jersey_number INTEGER,
+  position TEXT,
   photo_url TEXT,
   is_captain BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
@@ -36,6 +35,7 @@ CREATE TABLE matches (
   team_a_penalties INTEGER,
   team_b_penalties INTEGER,
   motm_player_id UUID REFERENCES players(id) ON DELETE SET NULL,
+  match_order INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
 );
 

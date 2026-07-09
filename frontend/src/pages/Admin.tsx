@@ -6,34 +6,54 @@ import { AdminMatches } from '../components/admin/AdminMatches';
 type Team = Database['public']['Tables']['teams']['Row'];
 
 export function Admin() {
-  const [activeTab, setActiveTab] = useState<'teams' | 'players' | 'matches'>('teams');
+  const [activeTab, setActiveTab] = useState<'players' | 'groups' | 'matches'>('players');
   const [teams, setTeams] = useState<Team[]>([]);
-  
-  // Team Form State
-  const [teamName, setTeamName] = useState('');
-  const [teamGroup, setTeamGroup] = useState<'A' | 'B'>('A');
-  const [teamLogo, setTeamLogo] = useState<File | null>(null);
-  
+  const [players, setPlayers] = useState<any[]>([]);
+
   // Player Form State
   const [playerTeamId, setPlayerTeamId] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [playerJersey, setPlayerJersey] = useState('');
-  const [playerPosition, setPlayerPosition] = useState('Forward');
+  const [playerPosition, setPlayerPosition] = useState('');
   const [playerRole, setPlayerRole] = useState('Regular');
   const [playerPhoto, setPlayerPhoto] = useState<File | null>(null);
+  const [selectedPlayerId, setSelectedPlayerId] = useState('new');
   
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  // Fetch teams for the player dropdown
+  // Fetch teams and players for the player dropdown
   useEffect(() => {
-    async function fetchTeams() {
-      const { data } = await supabase.from('teams').select('*').order('name');
-      if (data) setTeams(data);
-      if (data && data.length > 0 && !playerTeamId) setPlayerTeamId(data[0].id);
+    async function fetchData() {
+      const { data: teamsData } = await supabase.from('teams').select('*').order('name');
+      if (teamsData) setTeams(teamsData);
+      if (teamsData && teamsData.length > 0 && !playerTeamId) setPlayerTeamId(teamsData[0].id);
+
+      const { data: playersData } = await supabase.from('players').select('*').order('name');
+      if (playersData) setPlayers(playersData);
     }
-    fetchTeams();
+    fetchData();
   }, []);
+
+  const handlePlayerSelection = (playerId: string) => {
+    setSelectedPlayerId(playerId);
+    if (playerId === 'new') {
+      setPlayerName('');
+      setPlayerJersey('');
+      setPlayerPosition('');
+      setPlayerRole('Regular');
+      setPlayerPhoto(null);
+    } else {
+      const p = players.find(p => p.id === playerId);
+      if (p) {
+        setPlayerName(p.name);
+        setPlayerJersey(p.jersey_number ? p.jersey_number.toString() : '');
+        setPlayerPosition(p.position || '');
+        setPlayerRole(p.squad_role || 'Regular');
+        setPlayerPhoto(null);
+      }
+    }
+  };
 
   const handleFileUpload = async (file: File, path: string) => {
     const fileExt = file.name.split('.').pop();
@@ -53,40 +73,6 @@ export function Admin() {
     return data.publicUrl;
   };
 
-  const handleAddTeam = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
-
-    try {
-      let logo_url = null;
-      if (teamLogo) {
-        logo_url = await handleFileUpload(teamLogo, 'logos');
-      }
-
-      const { error } = await supabase.from('teams').insert({
-        name: teamName,
-        group_name: teamGroup,
-        logo_url
-      });
-
-      if (error) throw error;
-      setMessage('Team added successfully!');
-      
-      // Reset form
-      setTeamName('');
-      setTeamLogo(null);
-      
-      // Refresh team list
-      const { data } = await supabase.from('teams').select('*').order('name');
-      if (data) setTeams(data);
-    } catch (err: any) {
-      setMessage(`Error: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleAddPlayer = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -100,23 +86,33 @@ export function Admin() {
         photo_url = await handleFileUpload(playerPhoto, 'players');
       }
 
-      const { error } = await supabase.from('players').insert({
+      const playerData: any = {
         team_id: playerTeamId,
         name: playerName,
-        jersey_number: parseInt(playerJersey),
-        position: playerPosition,
-        squad_role: playerRole,
-        photo_url
-      });
-
-      if (error) throw error;
-      setMessage('Player added successfully!');
+        jersey_number: playerJersey ? parseInt(playerJersey) : null,
+        position: playerPosition || null,
+        squad_role: playerRole
+      };
       
-      // Reset form
-      setPlayerName('');
-      setPlayerJersey('');
-      setPlayerRole('Regular');
-      setPlayerPhoto(null);
+      if (photo_url) {
+        playerData.photo_url = photo_url;
+      }
+
+      if (selectedPlayerId === 'new') {
+        const { error } = await supabase.from('players').insert(playerData);
+        if (error) throw error;
+        setMessage('Player added successfully!');
+      } else {
+        const { error } = await supabase.from('players').update(playerData).eq('id', selectedPlayerId);
+        if (error) throw error;
+        setMessage('Player updated successfully!');
+      }
+      
+      // Refresh players list
+      const { data: playersData } = await supabase.from('players').select('*').order('name');
+      if (playersData) setPlayers(playersData);
+      
+      handlePlayerSelection('new');
     } catch (err: any) {
       setMessage(`Error: ${err.message}`);
     } finally {
@@ -131,22 +127,22 @@ export function Admin() {
         Admin Dashboard
       </h1>
 
-      <div className="flex gap-4 mb-8">
-        <button 
-          onClick={() => setActiveTab('teams')}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === 'teams' ? 'bg-brand-purple text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}
-        >
-          Add New Team
-        </button>
+      <div className="flex gap-4 mb-8 overflow-x-auto pb-2">
         <button 
           onClick={() => setActiveTab('players')}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === 'players' ? 'bg-brand-purple text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}
+          className={`whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === 'players' ? 'bg-brand-purple text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}
         >
           Add New Player
         </button>
         <button 
+          onClick={() => setActiveTab('groups')}
+          className={`whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === 'groups' ? 'bg-brand-purple text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}
+        >
+          Assign Groups
+        </button>
+        <button 
           onClick={() => setActiveTab('matches')}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === 'matches' ? 'bg-brand-purple text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}
+          className={`whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === 'matches' ? 'bg-brand-purple text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}
         >
           Match Management
         </button>
@@ -158,29 +154,35 @@ export function Admin() {
         </div>
       )}
 
-      {activeTab === 'teams' && (
-        <form onSubmit={handleAddTeam} className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-6">
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-400">Team Name *</label>
-              <input required type="text" value={teamName} onChange={e => setTeamName(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:border-brand-purple outline-none" placeholder="e.g. Spartans FC" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-400">Group *</label>
-              <select value={teamGroup} onChange={e => setTeamGroup(e.target.value as 'A' | 'B')} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:border-brand-purple outline-none">
-                <option value="A">Group A</option>
-                <option value="B">Group B</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-400">Team Logo Image</label>
-              <input type="file" accept="image/*" onChange={e => setTeamLogo(e.target.files?.[0] || null)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-2 text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-gray-800 file:text-gray-300" />
-            </div>
+      {activeTab === 'groups' && (
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-6">
+          <h2 className="text-xl font-bold text-white mb-4">Assign Teams to Groups</h2>
+          <div className="grid gap-4">
+            {teams.map(team => (
+              <div key={team.id} className="flex items-center justify-between p-4 bg-gray-950 rounded-lg border border-gray-800">
+                <div className="font-medium text-white">{team.name}</div>
+                <select 
+                  value={team.group_name || ''} 
+                  onChange={async (e) => {
+                    const newGroup = e.target.value || null;
+                    const { error } = await supabase.from('teams').update({ group_name: newGroup }).eq('id', team.id);
+                    if (!error) {
+                      setTeams(teams.map(t => t.id === team.id ? { ...t, group_name: newGroup } : t));
+                    }
+                  }}
+                  className="bg-gray-900 border border-gray-700 rounded-lg p-2 text-white focus:border-brand-purple outline-none"
+                >
+                  <option value="">Unassigned</option>
+                  <option value="A">Group A</option>
+                  <option value="B">Group B</option>
+                </select>
+              </div>
+            ))}
+            {teams.length === 0 && (
+              <div className="text-gray-400 text-center py-4">No teams added yet.</div>
+            )}
           </div>
-          <button disabled={loading} type="submit" className="w-full bg-brand-purple hover:bg-brand-dark text-white font-bold py-3 px-4 rounded-lg transition-colors disabled:opacity-50">
-            {loading ? 'Saving...' : 'Add Team'}
-          </button>
-        </form>
+        </div>
       )}
 
       {activeTab === 'players' && (
@@ -188,24 +190,36 @@ export function Admin() {
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2 col-span-2">
               <label className="text-sm font-medium text-gray-400">Assign to Team *</label>
-              <select value={playerTeamId} onChange={e => setPlayerTeamId(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:border-brand-purple outline-none">
+              <select value={playerTeamId} onChange={e => { setPlayerTeamId(e.target.value); handlePlayerSelection('new'); }} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:border-brand-purple outline-none">
                 <option value="">Select a team...</option>
                 {teams.map(t => (
-                  <option key={t.id} value={t.id}>{t.name} (Group {t.group_name})</option>
+                  <option key={t.id} value={t.id}>{t.name} {t.group_name ? `(Group ${t.group_name})` : '(Unassigned)'}</option>
                 ))}
               </select>
             </div>
+            
+            <div className="space-y-2 col-span-2">
+              <label className="text-sm font-medium text-gray-400">Player</label>
+              <select value={selectedPlayerId} onChange={e => handlePlayerSelection(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:border-brand-purple outline-none">
+                <option value="new">+ Add New Player</option>
+                {players.filter(p => p.team_id === playerTeamId).map(p => (
+                  <option key={p.id} value={p.id}>Edit: {p.name}</option>
+                ))}
+              </select>
+            </div>
+
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-400">Player Name *</label>
               <input required type="text" value={playerName} onChange={e => setPlayerName(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:border-brand-purple outline-none" placeholder="e.g. Rahul Sharma" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-400">Jersey Number *</label>
-              <input required type="number" value={playerJersey} onChange={e => setPlayerJersey(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:border-brand-purple outline-none" placeholder="e.g. 10" />
+              <label className="text-sm font-medium text-gray-400">Jersey Number</label>
+              <input type="number" value={playerJersey} onChange={e => setPlayerJersey(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:border-brand-purple outline-none" placeholder="e.g. 10" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-400">Position *</label>
+              <label className="text-sm font-medium text-gray-400">Position</label>
               <select value={playerPosition} onChange={e => setPlayerPosition(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:border-brand-purple outline-none">
+                <option value="">Unassigned</option>
                 <option value="Forward">Forward</option>
                 <option value="Midfielder">Midfielder</option>
                 <option value="Defender">Defender</option>
@@ -227,7 +241,7 @@ export function Admin() {
             </div>
           </div>
           <button disabled={loading || !playerTeamId} type="submit" className="w-full bg-brand-purple hover:bg-brand-dark text-white font-bold py-3 px-4 rounded-lg transition-colors disabled:opacity-50">
-            {loading ? 'Saving...' : 'Add Player'}
+            {loading ? 'Saving...' : (selectedPlayerId === 'new' ? 'Add Player' : 'Update Player')}
           </button>
         </form>
       )}

@@ -23,6 +23,13 @@ export function AdminMatches() {
   const [penaltiesB, setPenaltiesB] = useState<number>(0);
   const [motmPlayerId, setMotmPlayerId] = useState<string>('');
   
+  // New Match State
+  const [newMatchTeamA, setNewMatchTeamA] = useState('');
+  const [newMatchTeamB, setNewMatchTeamB] = useState('');
+  const [newMatchDate, setNewMatchDate] = useState('');
+  const [newMatchStage, setNewMatchStage] = useState('Group');
+  const [newMatchOrder, setNewMatchOrder] = useState<number>(1);
+  
   // Match Events State
   const [events, setEvents] = useState<any[]>([]);
   const [newEvent, setNewEvent] = useState({ type: 'Goal', playerId: '', teamId: '' });
@@ -31,7 +38,7 @@ export function AdminMatches() {
     const [tRes, pRes, mRes] = await Promise.all([
       supabase.from('teams').select('*').order('name'),
       supabase.from('players').select('*').order('name'),
-      supabase.from('matches').select('*').order('match_date', { ascending: true })
+      supabase.from('matches').select('*').order('match_order', { ascending: true }).order('match_date', { ascending: true })
     ]);
     if (tRes.data) setTeams(tRes.data);
     if (pRes.data) setPlayers(pRes.data);
@@ -42,55 +49,26 @@ export function AdminMatches() {
     fetchData();
   }, []);
 
-  const generateFixtures = async () => {
+  const handleAddMatch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMatchTeamA || !newMatchTeamB || !newMatchDate) return;
     setLoading(true);
     setMessage('');
     try {
-      const groupA = teams.filter(t => t.group_name === 'A');
-      const groupB = teams.filter(t => t.group_name === 'B');
-
-      if (groupA.length !== 4 || groupB.length !== 4) {
-        throw new Error('You must have exactly 4 teams in Group A and 4 teams in Group B before generating fixtures.');
-      }
-
-      // Generate round robin pairings for a group of 4
-      const makePairs = (grp: Team[]) => [
-        [grp[0], grp[1]], [grp[2], grp[3]],
-        [grp[0], grp[2]], [grp[1], grp[3]],
-        [grp[0], grp[3]], [grp[1], grp[2]]
-      ];
-
-      const pairsA = makePairs(groupA);
-      const pairsB = makePairs(groupB);
-
-      const newMatches = [];
-      let baseDate = new Date();
-      baseDate.setHours(18, 0, 0, 0); // Start at 6 PM
-
-      for (let i = 0; i < 6; i++) {
-        // Match A
-        newMatches.push({
-          stage: 'Group',
-          team_a_id: pairsA[i][0].id,
-          team_b_id: pairsA[i][1].id,
-          match_date: new Date(baseDate.getTime() + (i * 2) * 86400000).toISOString(), // Alternating days
-          status: 'Scheduled',
-        });
-        // Match B
-        newMatches.push({
-          stage: 'Group',
-          team_a_id: pairsB[i][0].id,
-          team_b_id: pairsB[i][1].id,
-          match_date: new Date(baseDate.getTime() + (i * 2 + 1) * 86400000).toISOString(),
-          status: 'Scheduled',
-        });
-      }
-
-      const { error } = await supabase.from('matches').insert(newMatches);
+      const { error } = await supabase.from('matches').insert({
+        team_a_id: newMatchTeamA,
+        team_b_id: newMatchTeamB,
+        stage: newMatchStage,
+        match_date: new Date(newMatchDate).toISOString(),
+        match_order: newMatchOrder,
+        status: 'Scheduled'
+      });
       if (error) throw error;
-      
-      setMessage('Group Stage Fixtures generated successfully!');
+      setMessage('Match added successfully!');
       fetchData();
+      setNewMatchTeamA('');
+      setNewMatchTeamB('');
+      setNewMatchOrder(prev => prev + 1);
     } catch (err: any) {
       setMessage(`Error: ${err.message}`);
     } finally {
@@ -286,17 +264,50 @@ export function AdminMatches() {
         </div>
       )}
 
+      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-8">
+        <h3 className="text-lg font-bold text-white mb-4">Create Manual Match</h3>
+        <form onSubmit={handleAddMatch} className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-400">Team A</label>
+            <select required value={newMatchTeamA} onChange={e => setNewMatchTeamA(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white">
+              <option value="">Select Team...</option>
+              {teams.map(t => <option key={t.id} value={t.id}>{t.name} {t.group_name ? `(Gr ${t.group_name})` : ''}</option>)}
+            </select>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-400">Team B</label>
+            <select required value={newMatchTeamB} onChange={e => setNewMatchTeamB(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white">
+              <option value="">Select Team...</option>
+              {teams.map(t => <option key={t.id} value={t.id}>{t.name} {t.group_name ? `(Gr ${t.group_name})` : ''}</option>)}
+            </select>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-400">Match Date & Time</label>
+            <input required type="datetime-local" value={newMatchDate} onChange={e => setNewMatchDate(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white" />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-400">Stage</label>
+            <select value={newMatchStage} onChange={e => setNewMatchStage(e.target.value)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white">
+              <option value="Group">Group Stage</option>
+              <option value="Semi-Final">Semi-Final</option>
+              <option value="Final">Final</option>
+            </select>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-400">Match Order (Sorting)</label>
+            <input required type="number" min="1" value={newMatchOrder} onChange={e => setNewMatchOrder(parseInt(e.target.value) || 1)} className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white" />
+          </div>
+          <div className="flex items-end">
+            <button disabled={loading} type="submit" className="w-full bg-brand-purple hover:bg-brand-dark text-white font-bold py-3 px-4 rounded-lg transition-colors">
+              {loading ? 'Adding...' : 'Add Match'}
+            </button>
+          </div>
+        </form>
+      </div>
+
       {matches.length === 0 ? (
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-8 text-center space-y-4">
-          <p className="text-gray-400">No matches found in the system.</p>
-          <button 
-            disabled={loading}
-            onClick={generateFixtures}
-            className="bg-brand-purple hover:bg-brand-dark text-white font-bold py-3 px-6 rounded-lg transition-colors inline-block"
-          >
-            {loading ? 'Generating...' : 'Auto-Generate Group Stage Fixtures'}
-          </button>
-          <p className="text-xs text-gray-500 max-w-sm mx-auto">Requires exactly 4 teams in Group A and 4 in Group B. This will create 12 alternating matches.</p>
+          <p className="text-gray-400">No matches found in the system. Create one above.</p>
         </div>
       ) : (
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">

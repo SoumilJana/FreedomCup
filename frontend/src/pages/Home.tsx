@@ -5,7 +5,7 @@ import { MatchCard } from '../components/MatchCard';
 import { useTournamentData } from '../hooks/useTournamentData';
 
 export function Home() {
-  const { standingsA, standingsB, standingsOverall, topScorer, starPlayer, latestMatch, loading } = useTournamentData();
+  const { teams, standingsA, standingsB, standingsOverall, topScorer, starPlayer, latestMatch, loading } = useTournamentData();
 
   return (
     <div className="space-y-16 py-8">
@@ -31,31 +31,58 @@ export function Home() {
           {/* Left Column: Standings */}
           <div className="xl:col-span-2 space-y-12">
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                  <span className="w-2 h-8 bg-brand-dark rounded-full block"></span>
-                  Overall Standings
-                </h2>
+            {standingsA.length === 0 && standingsB.length === 0 && teams.length > 0 ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                    <span className="w-2 h-8 bg-brand-purple rounded-full block"></span>
+                    Participating Teams
+                  </h2>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {teams.map(team => (
+                    <a key={team.id} href={`/team/${team.id}`} className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex flex-col items-center justify-center gap-3 hover:border-brand-purple transition-colors">
+                      <div className="w-16 h-16 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center overflow-hidden">
+                        {team.logo_url ? (
+                          <img src={team.logo_url} alt={team.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-xl font-bold text-gray-500">{team.name.charAt(0)}</span>
+                        )}
+                      </div>
+                      <div className="text-white font-bold text-center">{team.name}</div>
+                    </a>
+                  ))}
+                </div>
               </div>
-              <LeagueTable teams={standingsOverall} />
-            </div>
-            
-            <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                <span className="w-2 h-8 bg-brand-purple rounded-full block"></span>
-                Group A Standings
-              </h2>
-              <LeagueTable teams={standingsA} />
-            </div>
+            ) : (
+              <>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                      <span className="w-2 h-8 bg-brand-dark rounded-full block"></span>
+                      Overall Standings
+                    </h2>
+                  </div>
+                  <LeagueTable teams={standingsOverall} />
+                </div>
+                
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                    <span className="w-2 h-8 bg-brand-purple rounded-full block"></span>
+                    Group A Standings
+                  </h2>
+                  <LeagueTable teams={standingsA} />
+                </div>
 
-            <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                <span className="w-2 h-8 bg-brand-purple rounded-full block"></span>
-                Group B Standings
-              </h2>
-              <LeagueTable teams={standingsB} />
-            </div>
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                    <span className="w-2 h-8 bg-brand-purple rounded-full block"></span>
+                    Group B Standings
+                  </h2>
+                  <LeagueTable teams={standingsB} />
+                </div>
+              </>
+            )}
 
           </div>
 

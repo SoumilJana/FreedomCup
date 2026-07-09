@@ -80,6 +80,7 @@ export type Database = {
           team_b_id: string | null
           team_b_penalties: number | null
           team_b_score: number | null
+          match_order: number | null
         }
         Insert: {
           created_at?: string | null
@@ -94,6 +95,7 @@ export type Database = {
           team_b_id?: string | null
           team_b_penalties?: number | null
           team_b_score?: number | null
+          match_order?: number | null
         }
         Update: {
           created_at?: string | null
@@ -108,6 +110,7 @@ export type Database = {
           team_b_id?: string | null
           team_b_penalties?: number | null
           team_b_score?: number | null
+          match_order?: number | null
         }
         Relationships: [
           {
@@ -137,30 +140,30 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
-          jersey_number: number
+          jersey_number: number | null
           name: string
           photo_url: string | null
-          position: string
+          position: string | null
           squad_role: string | null
           team_id: string | null
         }
         Insert: {
           created_at?: string | null
           id?: string
-          jersey_number: number
+          jersey_number?: number | null
           name: string
           photo_url?: string | null
-          position: string
+          position?: string | null
           squad_role?: string | null
           team_id?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
-          jersey_number?: number
+          jersey_number?: number | null
           name?: string
           photo_url?: string | null
-          position?: string
+          position?: string | null
           squad_role?: string | null
           team_id?: string | null
         }
@@ -177,21 +180,21 @@ export type Database = {
       teams: {
         Row: {
           created_at: string | null
-          group_name: string
+          group_name: string | null
           id: string
           logo_url: string | null
           name: string
         }
         Insert: {
           created_at?: string | null
-          group_name: string
+          group_name?: string | null
           id?: string
           logo_url?: string | null
           name: string
         }
         Update: {
           created_at?: string | null
-          group_name?: string
+          group_name?: string | null
           id?: string
           logo_url?: string | null
           name?: string

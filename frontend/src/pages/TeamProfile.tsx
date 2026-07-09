@@ -61,7 +61,9 @@ function TeamProfileContent({ team, teamId }: { team: any, teamId: string }) {
           )}
         </div>
         <div className="text-center md:text-left">
-          <div className="text-brand-purple font-bold text-sm tracking-widest uppercase mb-1">Group {team.group_name}</div>
+          <div className="text-brand-purple font-bold text-sm tracking-widest uppercase mb-1">
+            {team.group_name ? `Group ${team.group_name}` : 'Unassigned'}
+          </div>
           <h1 className="text-4xl md:text-5xl font-black text-white">{team.name}</h1>
           
           {teamStandings && (
@@ -87,29 +89,20 @@ function TeamProfileContent({ team, teamId }: { team: any, teamId: string }) {
       <div className="space-y-6">
         <h2 className="text-2xl font-bold text-white flex items-center gap-2">
           <span className="w-2 h-8 bg-yellow-500 rounded-full block"></span>
-          Key Players
+          Key Personnel
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {captain && (
-            <div className="space-y-3">
-              <div className="text-sm font-bold text-yellow-500 uppercase tracking-widest text-center">Captain</div>
-              <PlayerCard player={captain as any} />
-            </div>
+            <PlayerCard player={captain as any} highlightColor="border-yellow-500" />
           )}
           {viceCaptain && (
-            <div className="space-y-3">
-              <div className="text-sm font-bold text-purple-400 uppercase tracking-widest text-center">Vice Captain</div>
-              <PlayerCard player={viceCaptain as any} />
-            </div>
+            <PlayerCard player={viceCaptain as any} highlightColor="border-purple-400" />
           )}
           {retained && (
-            <div className="space-y-3">
-              <div className="text-sm font-bold text-blue-400 uppercase tracking-widest text-center">Retained Player</div>
-              <PlayerCard player={retained as any} />
-            </div>
+            <PlayerCard player={retained as any} highlightColor="border-blue-400" />
           )}
           {!captain && !viceCaptain && !retained && (
-             <div className="col-span-full text-gray-500 py-4">No key players assigned yet.</div>
+             <div className="col-span-full text-gray-500 py-4">No key personnel assigned yet.</div>
           )}
         </div>
       </div>

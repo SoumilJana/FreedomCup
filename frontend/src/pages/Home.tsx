@@ -72,6 +72,16 @@ export function Home() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Left Column: Standings */}
         <div className="xl:col-span-2 space-y-12">
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <span className="w-2 h-8 bg-brand-dark rounded-full block"></span>
+                Overall Standings
+              </h2>
+            </div>
+            <LeagueTable teams={MOCK_TEAMS_OVERALL} />
+          </div>
           
           <div className="space-y-4">
             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -87,16 +97,6 @@ export function Home() {
               Group B Standings
             </h2>
             <LeagueTable teams={MOCK_TEAMS_GROUP_B} />
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                <span className="w-2 h-8 bg-brand-dark rounded-full block"></span>
-                Overall Standings
-              </h2>
-            </div>
-            <LeagueTable teams={MOCK_TEAMS_OVERALL} />
           </div>
 
         </div>

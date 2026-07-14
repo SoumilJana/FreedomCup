@@ -1,5 +1,5 @@
 
-import { Star } from 'lucide-react';
+import { Star, Target, Activity, Square } from 'lucide-react';
 
 interface PlayerCardProps {
   player: {
@@ -19,7 +19,7 @@ interface PlayerCardProps {
 }
 
 export function PlayerCard({ player }: PlayerCardProps) {
-  const isStaff = player.squad_role === 'Team Owner' || player.squad_role === 'Representative';
+  const isStaff = player.squad_role?.includes('Owner') || player.squad_role?.includes('Representative');
 
   return (
     <div className={`relative w-64 h-80 rounded-xl overflow-hidden bg-gray-900 border border-gray-800 ${!isStaff ? 'group transition-all duration-300 hover:border-brand-purple hover:shadow-[0_0_20px_rgba(76,29,149,0.3)]' : ''}`}>
@@ -43,9 +43,12 @@ export function PlayerCard({ player }: PlayerCardProps) {
                 </span>
               )}
             </h3>
-            <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">
+            <p className={`text-gray-400 text-xs font-medium tracking-wider ${!isStaff ? 'uppercase' : ''}`}>
               {player.squad_role && player.squad_role !== 'Regular'
-                ? (player.squad_role === 'Retained' ? 'Retained Player' : player.squad_role)
+                ? (player.squad_role === 'Retained' ? 'Retained Player' : 
+                   player.squad_role?.includes('Representative') ? 'Representative' :
+                   player.squad_role?.includes('Owner') ? 'Team Owner' :
+                   player.squad_role)
                 : player.position}
             </p>
           </div>
@@ -55,32 +58,74 @@ export function PlayerCard({ player }: PlayerCardProps) {
 
       {/* Hover View Stats (Hidden by default, slides up on hover) */}
       {!isStaff && (
-        <div className="absolute inset-0 bg-gray-950/90 p-6 flex flex-col justify-center translate-y-full transition-transform duration-300 group-hover:translate-y-0 backdrop-blur-sm">
-        <h3 className="text-2xl font-bold text-white mb-1">{player.name}</h3>
-        <p className="text-brand-purple font-medium mb-6">{player.position}</p>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-gray-900 rounded-lg p-3 text-center border border-gray-800">
-            <span className="block text-2xl font-bold text-white">{player.stats.goals}</span>
-            <span className="text-xs text-gray-400 uppercase">Goals</span>
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/80 to-transparent p-5 flex flex-col -translate-x-full transition-transform duration-300 group-hover:translate-x-0">
+          
+          {/* Top Badge */}
+          <div className="flex justify-between items-start min-h-[28px]">
+            {player.squad_role && player.squad_role !== 'Regular' && (
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-gray-700/50 bg-gray-900/50 backdrop-blur-sm">
+                <div className="w-1.5 h-1.5 rounded-full bg-brand-purple"></div>
+                <span className="text-[9px] font-bold tracking-widest text-gray-300 uppercase">
+                  {player.squad_role === 'Retained' ? 'Retained Player' : player.squad_role}
+                </span>
+              </div>
+            )}
           </div>
-          <div className="bg-gray-900 rounded-lg p-3 text-center border border-gray-800">
-            <span className="block text-2xl font-bold text-white">{player.stats.appearances}</span>
-            <span className="text-xs text-gray-400 uppercase">Played</span>
+
+          {/* Huge Number Background */}
+          <div className="absolute top-4 right-4 text-8xl font-black text-transparent opacity-80 select-none pointer-events-none" style={{ WebkitTextStroke: '2px rgba(167, 139, 250, 0.8)' }}>
+            {player.jersey_number}
           </div>
-          <div className="bg-gray-900 rounded-lg p-3 text-center border border-gray-800">
-            <div className="flex justify-center gap-2 text-lg font-bold">
-              <span className="text-yellow-500">{player.stats.yellow_cards}</span>
-              <span className="text-gray-600">/</span>
-              <span className="text-red-500">{player.stats.red_cards}</span>
+
+          {/* Spacer to push content down */}
+          <div className="flex-1"></div>
+
+          {/* Name & Position */}
+          <div className="mb-4">
+            <h3 className="text-3xl font-black text-white leading-none tracking-tight mb-1">
+              {player.name.split(' ').map((part, i) => <div key={i}>{part}</div>)}
+            </h3>
+            <p className="text-xs font-bold text-brand-purple tracking-widest uppercase">{player.position}</p>
+            <div className="w-6 h-0.5 bg-brand-purple/50 mt-2"></div>
+          </div>
+
+          {/* Stats */}
+          <div className="space-y-2.5 mb-4">
+            <div className="flex items-center justify-between border-b border-gray-800/60 pb-1.5">
+              <div className="flex items-center gap-3 text-brand-purple">
+                <Target size={12} />
+                <span className="text-[10px] font-medium tracking-widest text-gray-400 uppercase">Goals</span>
+              </div>
+              <span className="text-xs font-bold text-white">{player.stats.goals}</span>
             </div>
-            <span className="text-xs text-gray-400 uppercase">Cards</span>
+            <div className="flex items-center justify-between border-b border-gray-800/60 pb-1.5">
+              <div className="flex items-center gap-3 text-brand-purple">
+                <Activity size={12} />
+                <span className="text-[10px] font-medium tracking-widest text-gray-400 uppercase">Played</span>
+              </div>
+              <span className="text-xs font-bold text-white">{player.stats.appearances}</span>
+            </div>
+            <div className="flex items-center justify-between border-b border-gray-800/60 pb-1.5">
+              <div className="flex items-center gap-3 text-brand-purple">
+                <Square size={12} />
+                <span className="text-[10px] font-medium tracking-widest text-gray-400 uppercase">Cards</span>
+              </div>
+              <div className="flex items-center gap-1 text-xs font-bold">
+                <span className="text-yellow-500">{player.stats.yellow_cards}</span>
+                <span className="text-gray-600">/</span>
+                <span className="text-red-500">{player.stats.red_cards}</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between border-b border-gray-800/60 pb-1.5">
+              <div className="flex items-center gap-3 text-brand-purple">
+                <Star size={12} />
+                <span className="text-[10px] font-medium tracking-widest text-gray-400 uppercase">MOTM</span>
+              </div>
+              <span className="text-xs font-bold text-white">{player.stats.motm}</span>
+            </div>
           </div>
-          <div className="bg-gray-900 rounded-lg p-3 text-center border border-yellow-500/20">
-            <span className="block text-2xl font-bold text-yellow-400">{player.stats.motm}</span>
-            <span className="text-xs text-yellow-500/70 uppercase">MOTM</span>
-          </div>
-        </div>
+
+
         </div>
       )}
     </div>

@@ -43,12 +43,43 @@ function TeamProfileContent({ team, teamId }: { team: any, teamId: string }) {
     };
   });
 
-  const teamOwner = squad.find(p => p.squad_role === 'Team Owner');
-  const representatives = squad.filter(p => p.squad_role === 'Representative');
+  const teamOwner = squad.find(p => p.squad_role?.includes('Owner'));
+  const representatives = squad.filter(p => p.squad_role?.includes('Representative'));
   const captain = squad.find(p => p.squad_role === 'Captain');
   const viceCaptain = squad.find(p => p.squad_role === 'Vice Captain');
   const retained = squad.find(p => p.squad_role === 'Retained');
-  const regulars = squad.filter(p => !['Captain', 'Vice Captain', 'Retained', 'Team Owner', 'Representative'].includes(p.squad_role || ''));
+  const regulars = squad.filter(p => !p.squad_role?.includes('Owner') && !p.squad_role?.includes('Representative'));
+  
+  const getPosGroup = (pos: string) => regulars
+    .filter(p => p.position === pos)
+    .sort((a, b) => {
+      const roleOrder: Record<string, number> = { 'Captain': 1, 'Vice Captain': 2, 'Retained': 3 };
+      const orderA = roleOrder[a.squad_role || ''] || 99;
+      const orderB = roleOrder[b.squad_role || ''] || 99;
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      return a.name.localeCompare(b.name);
+    });
+  
+  const forwards = getPosGroup('Forward');
+  const midfielders = getPosGroup('Midfielder');
+  const defenders = getPosGroup('Defender');
+  const goalkeepers = getPosGroup('Goalkeeper');
+  
+  const unassigned = regulars
+    .filter(p => !['Forward', 'Midfielder', 'Defender', 'Goalkeeper'].includes(p.position || ''))
+    .sort((a, b) => {
+      const roleOrder: Record<string, number> = { 'Captain': 1, 'Vice Captain': 2, 'Retained': 3 };
+      const orderA = roleOrder[a.squad_role || ''] || 99;
+      const orderB = roleOrder[b.squad_role || ''] || 99;
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      return a.name.localeCompare(b.name);
+    });
+
+  const squadGroups = [forwards, midfielders, defenders, goalkeepers, unassigned].filter(g => g.length > 0);
 
   return (
     <div className="space-y-12 py-8">
@@ -90,19 +121,6 @@ function TeamProfileContent({ team, teamId }: { team: any, teamId: string }) {
         </div>
       </div>
 
-      {/* Team Owner Section */}
-      {teamOwner && (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <span className="w-2 h-8 bg-brand-purple rounded-full block"></span>
-            Team Owner
-          </h2>
-          <div className="flex flex-wrap justify-center md:justify-start gap-6">
-            <PlayerCard player={teamOwner as any} />
-          </div>
-        </div>
-      )}
-
       {/* Leadership & Retained Section */}
       <div className="space-y-6">
         <h2 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -119,26 +137,20 @@ function TeamProfileContent({ team, teamId }: { team: any, teamId: string }) {
           {retained && (
             <PlayerCard player={retained as any} />
           )}
-          {!captain && !viceCaptain && !retained && (
+          {/* Break to new row if possible, or just let it wrap naturally */}
+          <div className="basis-full h-0 hidden md:block"></div>
+          {teamOwner && (
+            <PlayerCard player={teamOwner as any} />
+          )}
+          {representatives.map(rep => (
+            <PlayerCard key={rep.id} player={rep as any} />
+          ))}
+
+          {!teamOwner && representatives.length === 0 && !captain && !viceCaptain && !retained && (
              <div className="col-span-full text-gray-500 py-4">No key personnel assigned yet.</div>
           )}
         </div>
       </div>
-
-      {/* Representatives Section */}
-      {representatives.length > 0 && (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <span className="w-2 h-8 bg-blue-500 rounded-full block"></span>
-            Representatives
-          </h2>
-          <div className="flex flex-wrap justify-center md:justify-start gap-6">
-            {representatives.map(rep => (
-              <PlayerCard key={rep.id} player={rep as any} />
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Full Squad */}
       <div className="space-y-6">
@@ -146,13 +158,21 @@ function TeamProfileContent({ team, teamId }: { team: any, teamId: string }) {
           <span className="w-2 h-8 bg-gray-500 rounded-full block"></span>
           Squad
         </h2>
-        {regulars.length === 0 ? (
+        {squadGroups.length === 0 ? (
           <div className="text-gray-500 py-4">No regular squad players assigned yet.</div>
         ) : (
           <div className="flex flex-wrap justify-center md:justify-start gap-6">
-            {regulars.map(p => (
-              <PlayerCard key={p.id} player={p as any} />
-            ))}
+            {squadGroups.map((group, groupIdx) => {
+              const isLast = groupIdx === squadGroups.length - 1;
+              return (
+                <div key={groupIdx} className="contents">
+                  {group.map(p => (
+                    <PlayerCard key={p.id} player={p as any} />
+                  ))}
+                  {!isLast && <div className="basis-full h-0"></div>}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
